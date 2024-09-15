@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Union
 
@@ -15,8 +16,9 @@ from nlu.pipe.utils.component_utils import ComponentUtils
 from nlu.pipe.utils.data_conversion_utils import DataConversionUtils
 from nlu.pipe.utils.output_level_resolution_utils import OutputLevelUtils
 from nlu.pipe.utils.resolution.storage_ref_utils import StorageRefUtils
+from nlu.universe.feature_node_ids import NLP_NODE_IDS
 from nlu.universe.universes import Licenses
-from nlu.utils.environment.env_utils import is_running_in_databricks, try_import_streamlit
+from nlu.utils.environment.env_utils import is_running_in_databricks_runtime, try_import_streamlit
 
 logger = logging.getLogger('nlu')
 
@@ -57,6 +59,9 @@ class NLUPipeline(dict):
         self.has_span_classifiers = False
         self.prefer_light = False
         self.has_table_qa_models = False
+        self.requires_image_format = False
+        self.requires_binary_format = False
+        self.is_light_pipe_incompatible = False
 
     def add(self, component: NluComponent, nlu_reference=None, pretrained_pipe_component=False,
             name_to_add='', idx=None):
@@ -200,7 +205,8 @@ class NLUPipeline(dict):
                 logger.info(
                     'Fitting on empty Dataframe, could not infer correct training method. This is intended for non-trainable pipelines.')
                 self.vanilla_transformer_pipe = self.spark_estimator_pipe.fit(self.get_sample_spark_dataframe())
-                self.light_transformer_pipe = LightPipeline(self.vanilla_transformer_pipe)
+                if not self.is_light_pipe_incompatible:
+                    self.light_transformer_pipe = LightPipeline(self.vanilla_transformer_pipe)
 
         self.has_trainable_components = False
         self.is_fitted = True
@@ -225,6 +231,9 @@ class NLUPipeline(dict):
                 anno_2_ex_config.update(extractors)
                 continue
             if 'embedding' in c.type and not get_embeddings:
+                continue
+            if c.name == NLP_NODE_IDS.FINISHER:
+                anno_2_ex_config = {**anno_2_ex_config, **self.__get_finisher_conf(c)}
                 continue
             for col in c.spark_output_column_names:
                 if 'default' in c.pdf_extractor_methods.keys() and not full_meta:
@@ -273,6 +282,12 @@ class NLUPipeline(dict):
 
            Can process Spark DF output from Vanilla pipes and Pandas Converts outputs of Lightpipeline
            """
+        if isinstance(pdf, pyspark.sql.dataframe.DataFrame):
+            if 'modificationTime' in pdf.columns:
+                # drop because of
+                # 'TypeError: Casting to unit-less dtype 'datetime64' is not supported.
+                # Pass e.g. 'datetime64[ns]' instead. processed'
+                pdf = pdf.drop('modificationTime')
         # Light pipe, does not fetch emebddings
         if light_pipe_enabled and not get_embeddings and not isinstance(pdf,
                                                                         pyspark.sql.dataframe.DataFrame) or self.prefer_light:
@@ -282,6 +297,32 @@ class NLUPipeline(dict):
         # Vanilla Spark Pipe
         return apply_extractors_and_merge(pdf.toPandas().applymap(extract_pyspark_rows), anno_2_ex_config,
                                           keep_stranger_features, stranger_features)
+    # def pythonify_spark_ocr_dataframe(self, processed,
+    #                               output_path=[],
+    #                                   file_paths=[]):
+    #
+    #     result = processed.select("pdf", "path").collect()
+    #     for index, row in enumerate(result):
+    #         pdf_content = row.pdf
+    #         outputFilePath = output_path[index]
+    #         with open(outputFilePath, "wb") as f:
+    #             f.write(pdf_content)
+    #     # for index, row in enumerate(result.select("pdf", "path").toLocalIterator()):
+    #     #     outputFilePath = output_path[index]
+    #     #     with open(outputFilePath, "wb") as f:
+    #     #         f.write(row.pdf)
+    #     # return
+    def pythonify_spark_ocr_dataframe(self, processed, output_path=[], file_paths=[]):
+        result = processed.select("pdf", "path").collect()
+        from pathlib import Path
+        for value in result:
+            for index, path in enumerate(file_paths):
+                if Path(path).name == Path(value.path).name:
+                    outputFilePath = output_path[index]
+                    pdf_content = value.pdf
+                    with open(outputFilePath, "wb") as f:
+                        f.write(pdf_content)
+                    break
 
     def pythonify_spark_dataframe(self, processed,
                                   keep_stranger_features=True,
@@ -326,19 +367,19 @@ class NLUPipeline(dict):
             self.prediction_output_level = output_level
 
         # Get mapping from component to feature extractor method configs
-        anno_2_ex_config = self.get_extraction_configs(output_metadata, positions, get_embeddings, processed)
+        col_2_ex_config = self.get_extraction_configs(output_metadata, positions, get_embeddings, processed)
 
         # Processed becomes pandas after applying extractors
         processed = self.unpack_and_apply_extractors(processed, keep_stranger_features, stranger_features,
-                                                     anno_2_ex_config, self.light_pipe_configured, get_embeddings)
+                                                     col_2_ex_config, self.light_pipe_configured, get_embeddings)
 
         # Get mapping between column_name and pipe_prediction_output_level
-        same_level = OutputLevelUtils.get_columns_at_same_level_of_pipe(self, processed, anno_2_ex_config,
+        same_level = OutputLevelUtils.get_columns_at_same_level_of_pipe(self, processed, col_2_ex_config,
                                                                         get_embeddings)
         logger.info(f"Extracting for same_level_cols = {same_level}\n")
         processed = zip_and_explode(processed, same_level)
         processed = self.convert_embeddings_to_np(processed)
-        processed = ColSubstitutionUtils.substitute_col_names(processed, anno_2_ex_config, self, stranger_features,
+        processed = ColSubstitutionUtils.substitute_col_names(processed, col_2_ex_config, self, stranger_features,
                                                               get_embeddings)
         processed = processed.loc[:, ~processed.columns.duplicated()]
 
@@ -418,53 +459,59 @@ class NLUPipeline(dict):
         if keep_origin_index == False and 'origin_index' in cols: cols.remove('origin_index')
         return cols
 
-    def save(self, path, component='entire_pipeline', overwrite=False):
-        from nlu.utils.environment.env_utils import is_running_in_databricks
-        if is_running_in_databricks():
-            if path.startswith('/dbfs/') or path.startswith('dbfs/'):
-                nlu_path = path
-                if path.startswith('/dbfs/'):
-                    nlp_path = path.replace('/dbfs', '')
-                else:
-                    nlp_path = path.replace('dbfs', '')
-            else:
-                nlu_path = 'dbfs/' + path
-                if path.startswith('/'):
-                    nlp_path = path
-                else:
-                    nlp_path = '/' + path
+    def _get_uid_payload(self):
+        data = {}
+        data[0] = {
+            'nlu_ref': self.nlu_ref,
+            'contains_ocr_components': self.contains_ocr_components,
+            'contains_audio_components': self.contains_audio_components,
+            'has_nlp_components': self.has_nlp_components,
+            'has_span_classifiers': self.has_span_classifiers,
+            'prefer_light': self.prefer_light,
+            'has_table_qa_models': self.has_table_qa_models,
+            'requires_image_format': self.requires_image_format,
+            'requires_binary_format': self.requires_binary_format,
+            'is_light_pipe_incompatible': self.is_light_pipe_incompatible,
+        }
+        data['is_nlu_pipe'] = True
+        for i, c in enumerate(self.components):
+            data[i + 1] = {'nlu_ref': c.nlu_ref, 'nlp_ref': c.nlp_ref,
+                           'loaded_from_pretrained_pipe': c.loaded_from_pretrained_pipe}
 
-            if not self.is_fitted and self.has_trainable_components:
-                self.fit()
-                self.is_fitted = True
-            if component == 'entire_pipeline':
-                self.vanilla_transformer_pipe.save(nlp_path)
-        if overwrite and not is_running_in_databricks():
-            import shutil
-            shutil.rmtree(path, ignore_errors=True)
-        if not self.is_fitted:
+        return json.dumps(data)
+    def save(self, path, component='entire_pipeline', overwrite=True):
+        # serialize data
+        data = self._get_uid_payload()
+        if not self.is_fitted or not hasattr(self, 'vanilla_transformer_pipe'):
             self.fit()
             self.is_fitted = True
+        # self.vanilla_transformer_pipe.extractParamMap()
+        if hasattr(self, 'nlu_ref'):
+            self.vanilla_transformer_pipe._resetUid(data)
         if component == 'entire_pipeline':
-            if isinstance(self.vanilla_transformer_pipe, LightPipeline):
-                self.vanilla_transformer_pipe.pipeline_model.save(path)
+            if overwrite:
+                self.vanilla_transformer_pipe.write().overwrite().save(path)
             else:
                 self.vanilla_transformer_pipe.save(path)
         else:
-            if component in self.keys():
+            if overwrite:
+                self[component].write().overwrite().save(path)
+            else:
                 self[component].save(path)
-        print(f'Stored model_anno_obj in {path}')
 
     def predict(self,
                 data,
                 output_level='',
+                output_path='',
                 positions=False,
                 keep_stranger_features=True,
                 metadata=False,
                 multithread=True,
                 drop_irrelevant_cols=True,
                 return_spark_df=False,
-                get_embeddings=True
+                get_embeddings=True,
+                parser_output=False,
+                parser_config=''
                 ):
         '''
         Annotates a Pandas Dataframe/Pandas Series/Numpy Array/Spark DataFrame/Python List strings /Python String
@@ -486,8 +533,30 @@ class NLUPipeline(dict):
         :return:
         '''
         from nlu.pipe.utils.predict_helper import __predict__
-        return __predict__(self, data, output_level, positions, keep_stranger_features, metadata, multithread,
-                           drop_irrelevant_cols, return_spark_df, get_embeddings)
+        return __predict__(self, data, output_level, output_path, positions, keep_stranger_features, metadata, multithread,
+                           drop_irrelevant_cols, return_spark_df, get_embeddings, parser_output, parser_config)
+
+    def predict_embeds(self,
+                       data,
+                       multithread=True,
+                       return_spark_df=False,
+                       ):
+        '''
+        Annotates a Pandas Dataframe/Pandas Series/Numpy Array/Spark DataFrame/Python List strings /Python String abd returns List of Floats or Spark-Df, only with embeddings.
+        :param data: Data to predict on
+                and drop_irrelevant_cols = True then chunk, sentence and Doc will be dropped
+        :param return_spark_df: Prediction results will be returned right after transforming with the Spark NLP pipeline
+                                 This will run fully distributed in on the Spark Master, but not prettify the output dataframe
+        :param return_spark_df: return Spark-DF and not collect all data into driver instead of returning list of float
+        :param multithread: Use multithreaded Light-pipeline instead of spark-pipeline
+
+        :return:
+        '''
+        from nlu.pipe.utils.predict_helper import __predict__
+        return __predict__(self, data, output_level=None, positions=False, keep_stranger_features=False, metadata=False,
+                           multithread=multithread,
+                           drop_irrelevant_cols=True, return_spark_df=return_spark_df, get_embeddings=True,
+                           embed_only=True)
 
     def print_info(self, minimal=True):
         '''
@@ -580,7 +649,7 @@ class NLUPipeline(dict):
         from nlu.utils.environment.env_utils import install_and_import_package
         install_and_import_package('spark-nlp-display', import_name='sparknlp_display')
         if self.vanilla_transformer_pipe is None: self.fit()
-        is_databricks_env = is_running_in_databricks()
+        is_databricks_env = is_running_in_databricks_runtime()
         if return_html: is_databricks_env = True
         # self.configure_light_pipe_usage(1, force=True)
         from nlu.pipe.viz.vis_utils import VizUtils
@@ -945,3 +1014,59 @@ class NLUPipeline(dict):
                 self.light_pipe_configured = True
                 logger.info("Enabling light pipeline")
                 self.light_transformer_pipe = LightPipeline(self.vanilla_transformer_pipe, parse_embeddings=True)
+
+    @staticmethod
+    def __get_finisher_conf(finisher: NluComponent) -> Dict[str, FinisherExtractorConfig]:
+        """
+        returns a dict where key=col name and value=FinisherExtractorConfig for that col for pipe and finisher.
+        For finisher we need to know for each col: if its meta-field, out_put_as_arrr and if not what are sep symbols
+        """
+
+        confs = {}
+        m = finisher.model
+        m.setIncludeMetadata(True)
+        as_arr = m.getOutputAsArray()
+        # hotfix because finisher has no getIncludeMetadata()
+        # For now we always extract all meta
+        has_meta = True
+        for c in m.getOutputCols():
+            confs[c] = FinisherExtractorConfig(output_as_array=as_arr,
+                                               is_meta_field=False,
+                                               annotation_split_symbol=m.getAnnotationSplitSymbol(),
+                                               value_split_symbol=m.getValueSplitSymbol(),
+                                               source_col_name=c,
+                                               )
+            if has_meta: # since metadata fields dont show up in getOutputCols we need to add them manually
+                meta_col = f'{c}_metadata'
+                finisher.spark_output_column_names.append(meta_col)
+                confs[meta_col] = FinisherExtractorConfig(output_as_array=as_arr,
+                                                   is_meta_field=True,
+                                                   annotation_split_symbol=m.getAnnotationSplitSymbol(),
+                                                   value_split_symbol=m.getValueSplitSymbol(),
+                                                   source_col_name=meta_col,
+                                                   )
+        return confs
+
+    def Tracer(self):
+        from sparknlp_jsl.pipeline_tracer import PipelineTracer
+        self.fit()
+        pipe_tracer = PipelineTracer(self.vanilla_transformer_pipe)
+        return pipe_tracer
+    def createParserDictionary(self):
+        return self.Tracer().createParserDictionary()
+    def getPossibleAssertions(self):
+        return self.Tracer().getPossibleAssertions()
+
+    def printPipelineSchema(self):
+        return self.Tracer().printPipelineSchema()
+
+
+    def getPossibleRelations(self):
+        return self.Tracer().getPossibleRelations()
+
+    def getPossibleEntities(self):
+        return self.Tracer().getPossibleEntities()
+    def getPipelineStages(self):
+        return self.Tracer().getPipelineStages()
+
+

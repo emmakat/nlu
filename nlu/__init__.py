@@ -1,4 +1,5 @@
-__version__ = '4.0.0'
+__version__ = '5.4.0'
+
 
 import nlu.utils.environment.env_utils as env_utils
 
@@ -18,6 +19,9 @@ from nlu.pipe.pipe_logic import PipelineCompleter
 from nlu.discovery import Discoverer
 from nlu.pipe.component_resolution import *
 
+# apply hotfix
+import pandas as pd
+pd.DataFrame.iteritems = pd.DataFrame.items
 
 def version(): return __version__
 
@@ -174,8 +178,10 @@ def to_nlu_pipe(nlp_pipe: Union[Pipeline, LightPipeline, PipelineModel, List], i
 
 def load(request: str = 'from_disk', path: Optional[str] = None, verbose: bool = False, gpu: bool = False,
          streamlit_caching: bool = False,
-         m1_chip: bool = False
+         apple_silicon: bool = False,
+         get_tracer=False
          ) -> NLUPipeline:
+
     '''
     Load either a prebuild pipeline or a set of components identified by a whitespace seperated list of components
     You must call nlu.auth() BEFORE calling nlu.load() to access licensed models.
@@ -188,24 +194,26 @@ def load(request: str = 'from_disk', path: Optional[str] = None, verbose: bool =
     :param request: A NLU model_anno_obj/pipeline/component_to_resolve reference. You can request multiple components by separating them with whitespace. I.e. nlu.load('elmo bert albert')
     :return: returns a non fitted nlu pipeline object
     '''
+
     if streamlit_caching and not nlu.st_cache_enabled:
         enable_streamlit_caching()
         return nlu.load(request, path, verbose, gpu, streamlit_caching)
     # check if secrets are in default loc, if yes load them and create licensed context automatically
     auth(gpu=gpu)
-    spark = get_open_source_spark_context(gpu, m1_chip)
-    spark.catalog.clearCache()
+    if request.startswith("openai"):
+        spark = get_open_source_spark_context_with_openai(gpu,apple_silicon)
+    else:
+        spark = get_open_source_spark_context(gpu, apple_silicon)
+    # spark.catalog.clearCache()
 
     if verbose:
         enable_verbose()
     else:
-
         disable_verbose()
     try:
         if path is not None:
             logger.info(f'Trying to load nlu pipeline from local hard drive, located at {path}')
             pipe = load_nlu_pipe_from_hdd(path, request)
-            pipe.nlu_ref = request
             return pipe
     except Exception as err:
         if verbose:
@@ -271,12 +279,58 @@ def auth(HEALTHCARE_LICENSE_OR_JSON_PATH='/content/spark_nlp_for_healthcare.json
     return nlu
 
 
+def is_nlu_uid(uid: str):
+    return 'is_nlu_pipe' in uid
+
+
+def load_nlu_pipe_from_hdd_in_databricks(pipe_path, request) -> NLUPipeline:
+    """Either there is a pipeline of models in the path or just one singular model_anno_obj.
+    If it is a component_list,  load the component_list and return it.
+    If it is a singular model_anno_obj, load it to the correct AnnotatorClass and NLU component_to_resolve and then generate pipeline for it
+    """
+
+    # def dbfs_path_exist(path):
+    #     try:
+    #         dbutils.fs.ls(path)
+    #         return True
+    #     except:
+    #         return False
+    from pyspark.dbutils import DBUtils
+    dbutils = DBUtils(sparknlp.start())
+    dbutils.fs
+
+    is_pipe = lambda path: any([f.name == 'stages/' for f in dbutils.fs.ls(path)])
+    is_model = lambda path: any([f.name == 'metadata/' for f in dbutils.fs.ls(path)])
+
+    pipe = NLUPipeline()
+    nlu_ref = request  # pipe_path
+    # if dbfs_path_exist(pipe_path):
+    # Resource in path is a pipeline
+    if is_pipe(pipe_path):
+        pipe_components, uid = get_trained_component_list_for_nlp_pipe_ref('en', nlu_ref, nlu_ref, pipe_path, False)
+    # Resource in path is a single model_anno_obj
+    elif is_model(pipe_path):
+        c = offline_utils.verify_and_create_model(pipe_path)
+        c.nlu_ref = nlu_ref
+        pipe.add(c, nlu_ref, pretrained_pipe_component=True)
+        return PipelineCompleter.check_and_fix_nlu_pipeline(pipe)
+
+    else:
+        # fallback pipe
+        pipe_components, uid = get_trained_component_list_for_nlp_pipe_ref('en', nlu_ref, nlu_ref, pipe_path, False)
+    for c in pipe_components: pipe.add(c, nlu_ref, pretrained_pipe_component=True)
+    return pipe
+
+
 def load_nlu_pipe_from_hdd(pipe_path, request) -> NLUPipeline:
     """Either there is a pipeline of models in the path or just one singular model_anno_obj.
     If it is a component_list,  load the component_list and return it.
     If it is a singular model_anno_obj, load it to the correct AnnotatorClass and NLU component_to_resolve and then generate pipeline for it
     """
+    if is_running_in_databricks_runtime():
+        return load_nlu_pipe_from_hdd_in_databricks(pipe_path, request)
     pipe = NLUPipeline()
+    pipe.nlu_ref = request
     nlu_ref = request  # pipe_path
     if os.path.exists(pipe_path):
 
@@ -284,7 +338,7 @@ def load_nlu_pipe_from_hdd(pipe_path, request) -> NLUPipeline:
         if offline_utils.is_pipe(pipe_path):
             # language, nlp_ref, nlu_ref,path=None, is_licensed=False
             # todo deduct lang and if Licensed or not
-            pipe_components = get_trained_component_list_for_nlp_pipe_ref('en', nlu_ref, nlu_ref, pipe_path, False)
+            pipe_components, uid = get_trained_component_list_for_nlp_pipe_ref('en', nlu_ref, nlu_ref, pipe_path, False)
         # Resource in path is a single model_anno_obj
         elif offline_utils.is_model(pipe_path):
             c = offline_utils.verify_and_create_model(pipe_path)
@@ -295,7 +349,25 @@ def load_nlu_pipe_from_hdd(pipe_path, request) -> NLUPipeline:
             print(
                 f"Could not load model_anno_obj in path {pipe_path}. Make sure the jsl_folder contains either a stages subfolder or a metadata subfolder.")
             raise ValueError
-        for c in pipe_components: pipe.add(c, nlu_ref, pretrained_pipe_component=True)
+        for c in pipe_components:
+            pipe.add(c, nlu_ref, pretrained_pipe_component=True)
+        if is_nlu_uid(uid):
+            data = json.loads(uid)
+            pipe.nlu_ref = data['0']['nlu_ref']
+            pipe.contains_ocr_components = data['0']['contains_ocr_components']
+            pipe.contains_audio_components = data['0']['contains_audio_components']
+            pipe.has_nlp_components = data['0']['has_nlp_components']
+            pipe.has_span_classifiers = data['0']['has_span_classifiers']
+            pipe.prefer_light = data['0']['prefer_light']
+            pipe.has_table_qa_models = data['0']['has_table_qa_models']
+            pipe.requires_image_format = data['0']['requires_image_format']
+            pipe.requires_binary_format = data['0']['requires_binary_format']
+            pipe.is_light_pipe_incompatible = data['0']['is_light_pipe_incompatible']
+
+            for i, c in enumerate(pipe.components):
+                c.nlu_ref = data[str(i + 1)]['nlu_ref']
+                c.nlp_ref = data[str(i + 1)]['nlp_ref']
+                c.loaded_from_pretrained_pipe = data[str(i + 1)]['loaded_from_pretrained_pipe']
         return pipe
 
     else:
@@ -304,16 +376,31 @@ def load_nlu_pipe_from_hdd(pipe_path, request) -> NLUPipeline:
         raise ValueError
 
 
-def get_open_source_spark_context(gpu, m1_chip):
+def get_open_source_spark_context(gpu, apple_silicon):
     if env_utils.is_env_pyspark_3_x():
-        if m1_chip:
-            return sparknlp.start(gpu=gpu, m1=True)
+        if apple_silicon:
+            return sparknlp.start(gpu=gpu, apple_silicon=True)
         else:
             return sparknlp.start(gpu=gpu)
     raise ValueError(f"Failure starting Spark Context! Current Spark version {get_pyspark_version()} not supported! "
                      f"Please install any of Pyspark 3.X versions.")
 
+def get_open_source_spark_context_with_openai(gpu, apple_silicon):
 
+    if env_utils.is_env_pyspark_3_x():
+        OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+        if OPENAI_API_KEY:
+            openai_params = {"spark.jsl.settings.openai.api.key": OPENAI_API_KEY}
+            if apple_silicon:
+                return sparknlp.start(gpu=gpu, apple_silicon=True, params=openai_params)
+            else:
+                return sparknlp.start(gpu=gpu, params=openai_params)
+        else:
+            raise Exception("This feature requires OPEN_API_KEY env var to be present!")
+
+    raise ValueError(f"Failure starting Spark Context! Current Spark version {get_pyspark_version()} not supported! "
+                     f"Please install any of Pyspark 3.X versions.")
 def enable_verbose() -> None:
     logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()

@@ -142,7 +142,7 @@ class SparkOCRExtractorConfig(SparkNLPExtractorConfig):
     get_image_resolution: bool = field(default=False)
     get_image_data: bool = field(default=False)
     # General OCR fields
-    # get_path          :bool              = field(default = False)# origin is path
+    get_path: bool = field(default=False)# origin is path
     get_modification_time: bool = field(default=False)
     get_length: bool = field(default=False)
     get_page_num: bool = field(default=False)
@@ -150,3 +150,14 @@ class SparkOCRExtractorConfig(SparkNLPExtractorConfig):
     get_exception: bool = field(default=False)
     # Position struct fields
     get_img_positions: bool = field(default=False)
+
+@dataclass
+class FinisherExtractorConfig:
+    """
+    Universal Configuration class for defining how to extract data from a Finisher
+    """
+    source_col_name: str
+    output_as_array: bool = field(default=True)
+    is_meta_field: bool = field(default=False)
+    annotation_split_symbol:Optional[bool]=field(default=None)
+    value_split_symbol:Optional[bool]=field(default=None)

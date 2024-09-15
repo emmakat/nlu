@@ -13,6 +13,12 @@ class AnnoClassRef:
     HC_A_N = NLP_HC_NODE_IDS
     # Map AnnoID to PyCLass
     JSL_anno2_py_class: Dict[JslAnnoId, JslAnnoPyClass] = {
+
+        A_N.E5_SENTENCE_EMBEDDINGS: 'E5Embeddings',
+        A_N.BGE_SENTENCE_EMBEDDINGS: 'BGEEmbeddings',
+        A_N.INSTRUCTOR_SENTENCE_EMBEDDINGS: 'InstructorEmbeddings',
+
+        A_N.WHISPER_FOR_CTC: 'WhisperForCTC',
         A_N.HUBERT_FOR_CTC: 'HubertForCTC',
         A_N.CAMEMBERT_FOR_QUESTION_ANSWERING: 'CamemBertForQuestionAnswering',
         A_N.SWIN_IMAGE_CLASSIFICATION: 'SwinForImageClassification',
@@ -95,11 +101,21 @@ class AnnoClassRef:
         A_N.BERT_SENTENCE_EMBEDDINGS: 'BertSentenceEmbeddings',
         A_N.DISTIL_BERT_EMBEDDINGS: 'DistilBertEmbeddings',
         A_N.DISTIL_BERT_FOR_SEQUENCE_CLASSIFICATION: 'DistilBertForSequenceClassification',
+        A_N.DISTIL_BERT_FOR_ZERO_SHOT_CLASSIFICATION: 'DistilBertForZeroShotClassification',
+
+        A_N.DEBERTA_FOR_ZERO_SHOT_CLASSIFICATION: 'DeBertaForZeroShotClassification',
+        
         A_N.BERT_FOR_SEQUENCE_CLASSIFICATION: 'BertForSequenceClassification',
+        A_N.XLM_ROBERTA_FOR_ZERO_SHOT_CLASSIFICATION: 'XlmRoBertaForZeroShotClassification',
+        A_N.BERT_FOR_ZERO_SHOT_CLASSIFICATION: 'BertForZeroShotClassification',
+        A_N.BART_FOR_ZERO_SHOT_CLASSIFICATION: 'BartForZeroShotClassification',
         A_N.ELMO_EMBEDDINGS: 'ElmoEmbeddings',
         A_N.LONGFORMER_EMBEDDINGS: 'LongformerEmbeddings',
+        A_N.ROBERTA_FOR_ZERO_SHOT_CLASSIFICATION: 'RoBertaForZeroShotClassification',
         A_N.LONGFORMER_FOR_TOKEN_CLASSIFICATION: 'LongformerForTokenClassification',
         A_N.MARIAN_TRANSFORMER: 'MarianTransformer',
+        A_N.MPNET_SENTENCE_EMBEDDINGS: 'MPNetEmbeddings',
+        A_N.MPNET_FOR_SEQUENCE_CLASSIFICATION: 'MPNetForSequenceClassification',
         A_N.ROBERTA_EMBEDDINGS: 'RoBertaEmbeddings',
         A_N.ROBERTA_FOR_TOKEN_CLASSIFICATION: 'RoBertaForTokenClassification',
         A_N.ROBERTA_SENTENCE_EMBEDDINGS: 'RoBertaSentenceEmbeddings',
@@ -116,10 +132,13 @@ class AnnoClassRef:
         A_N.ALBERT_FOR_SEQUENCE_CLASSIFICATION: 'AlbertForSequenceClassification',
         A_N.XLNET_FOR_SEQUENCE_CLASSIFICATION: 'XlnetForSequenceClassification',
         A_N.GPT2: 'GPT2Transformer',
+        A_N.OPENAI_COMPLETION : 'OpenAICompletion',
+        A_N.OPENAI_EMBEDDINGS: 'OpenAIEmbeddings',
         A_N.DEBERTA_WORD_EMBEDDINGS: 'DeBertaEmbeddings',
         A_N.DEBERTA_FOR_TOKEN_CLASSIFICATION: 'DeBertaForTokenClassification',
         A_N.CAMEMBERT_EMBEDDINGS: 'CamemBertEmbeddings',
-
+        A_N.BART_TRANSFORMER: 'BartTransformer',
+        A_N.M2M100_TRANSFORMER: 'M2M100Transformer',
         A_N.TRAINABLE_VIVEKN_SENTIMENT: 'ViveknSentimentApproach',
         A_N.TRAINABLE_SENTIMENT: 'SentimentDetector',
         A_N.TRAINABLE_SENTIMENT_DL: 'SentimentDLApproach',
@@ -189,6 +208,7 @@ class AnnoClassRef:
         A_N.PARTIAL_EntityRulerApproach: 'EntityRulerApproach',
         A_N.PARTIAL_EntityRulerModel: 'EntityRulerModel',
         A_N.PARTIAL_TextMatcherModel: 'TextMatcherModel',
+        A_N.PARTIAL_TextMatcherInternalModel: 'TextMatcherInternalModel',
         A_N.PARTIAL_BigTextMatcher: 'BigTextMatcher',
         A_N.PARTIAL_BigTextMatcherModel: 'BigTextMatcherModel',
         A_N.PARTIAL_DateMatcher: 'DateMatcher',
@@ -226,9 +246,14 @@ class AnnoClassRef:
         A_N.PARTIAL_Lemmatizer: 'Lemmatizer',
         A_N.PARTIAL_Normalizer: 'Normalizer',
         A_N.VIT_IMAGE_CLASSIFICATION: 'ViTForImageClassification',
+        A_N.CONVNEXT_IMAGE_CLASSIFICATION: 'ConvNextImageClassifier',
+        A_N.CONVNEXT_IMAGE_CLASSIFICATIONFITTED: 'ConvNextForImageClassification',
 
     }
     JSL_anno_HC_ref_2_py_class: Dict[JslAnnoId, JslAnnoPyClass] = {
+        HC_A_N.MEDICAL_QUESTION_ANSWERING: 'MedicalQuestionAnswering',
+        HC_A_N.MEDICAL_TEXT_GENERATOR: 'MedicalTextGenerator',
+        HC_A_N.MEDICAL_SUMMARIZER:'MedicalSummarizer',
         HC_A_N.ZERO_SHOT_NER: 'ZeroShotNerModel',
         HC_A_N.CHUNK_MAPPER_MODEL: 'ChunkMapperModel',
         HC_A_N.ASSERTION_DL: 'AssertionDLModel',
@@ -280,6 +305,7 @@ class AnnoClassRef:
     JSL_anno_OCR_ref_2_py_class: Dict[JslAnnoId, JslAnnoPyClass] = {
         OCR_NODE_IDS.IMAGE2TEXT: 'ImageToText',
         OCR_NODE_IDS.PDF2TEXT: 'PdfToText',
+        OCR_NODE_IDS.PDF2IMAGE: 'PdfToImage',
         OCR_NODE_IDS.DOC2TEXT: 'DocToText',
         OCR_NODE_IDS.BINARY2IMAGE: 'BinaryToImage',
         OCR_NODE_IDS.PDF2TEXT_TABLE: 'PdfToTextTable',
@@ -288,7 +314,17 @@ class AnnoClassRef:
         OCR_NODE_IDS.TEXT2PDF: 'TextToPdf',
         OCR_NODE_IDS.VISUAL_DOCUMENT_CLASSIFIER: 'VisualDocumentClassifier',
         OCR_NODE_IDS.IMAGE2HOCR: 'ImageToHocr',
-
+        OCR_NODE_IDS.IMAGE_TABLE_DETECTOR: 'ImageTableDetector',
+        OCR_NODE_IDS.IMAGE_TABLE_CELL_DETECTOR: 'ImageTableCellDetector',
+        OCR_NODE_IDS.IMAGE_TABLE_CELL2TEXT_TABLE: 'ImageCellsToTextTable',
+        OCR_NODE_IDS.IMAGE_SPLIT_REGIONS: 'ImageSplitRegions',
+        OCR_NODE_IDS.VISUAL_DOCUMENT_NER: 'VisualDocumentNer',
+        OCR_NODE_IDS.HOCR_TOKENIZER: 'HocrTokenizer',
+        OCR_NODE_IDS.FORM_RELATION_EXTRACTOR:  'FormRelationExtractor',
+        OCR_NODE_IDS.IMAGE_DRAW_REGIONS: 'ImageDrawRegions',
+        OCR_NODE_IDS.POSITION_FINDER: 'PositionFinder',
+        OCR_NODE_IDS.IMAGE2PDF: 'ImageToPdf',
+        OCR_NODE_IDS.POSITION_FINDER: 'PositionFinder'
     }
 
     @staticmethod

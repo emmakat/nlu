@@ -10,7 +10,8 @@ extractors defined in helper_extractor_methods.py.
 
 """
 
-from nlu.pipe.extractors.extractor_base_data_classes import SparkNLPExtractor, SparkNLPExtractorConfig
+from nlu.pipe.extractors.extractor_base_data_classes import SparkNLPExtractor, SparkNLPExtractorConfig, \
+    FinisherExtractorConfig
 from nlu.pipe.extractors.extractor_methods.helper_extractor_methods import *
 
 """
@@ -38,6 +39,16 @@ def default_full_config(output_col_prefix='DEFAULT'):
         get_annotator_type=False,
         name='default_full',
         description='Default full configuration, keeps all data and gets all metadata fields',
+
+    )
+
+def default_finisher_config(output_col_prefix='DEFAULT'):
+    return FinisherExtractorConfig(
+        output_as_array=True,
+        is_meta_field=False,
+        annotation_split_symbol=None,
+        value_split_symbol=None,
+        # clean_annotations=True,
 
     )
 
@@ -241,7 +252,7 @@ def default_seq_classifier_config(output_col_prefix='classified_sequence '):
     return SparkNLPExtractorConfig(
         output_col_prefix=output_col_prefix,
         get_result=True,
-        get_full_meta=False,
+        get_full_meta=True,
         name='default_seq_classifier',
         description='Get max predicted confidence and label',
         meta_data_extractor=SparkNLPExtractor(extract_maximum_confidence,

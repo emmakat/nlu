@@ -47,7 +47,22 @@ OS_anno2substitution_fn = {
     ElmoEmbeddings: {
         'default': substitute_word_embed_cols,
     },
+    E5Embeddings: {
+        'default': substitute_sent_embed_cols,
+    },
+    OpenAIEmbeddings: {
+        'default': substitute_sent_embed_cols,
+    },
+    BGEEmbeddings: {
+        'default': substitute_sent_embed_cols,
+    },
     BertSentenceEmbeddings: {
+        'default': substitute_sent_embed_cols,
+    },
+    RoBertaSentenceEmbeddings: {
+        'default': substitute_sent_embed_cols,
+    },
+    InstructorEmbeddings: {
         'default': substitute_sent_embed_cols,
     },
 
@@ -64,6 +79,9 @@ OS_anno2substitution_fn = {
     SentenceEmbeddings: {
         'default': substitute_sent_embed_cols,
     },
+    # MPNetEmbeddings: {
+    #     'default': substitute_sent_embed_cols,
+    # },
     Tokenizer: {
         'default': substitute_tokenizer_cols,
     },

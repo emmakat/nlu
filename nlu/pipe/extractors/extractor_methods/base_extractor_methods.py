@@ -21,7 +21,8 @@ from nlu.pipe.extractors.extractor_base_data_classes import *
 def extract_light_pipe_rows(df):
     """Extract Annotations from Light Pipeline into same represenation as other extractors in thos module"""
     ff = lambda row: list(map(f, row)) if isinstance(row, List) else row
-    f = lambda anno: dict(annotatorType=anno.annotator_type,
+    f = lambda anno: dict(
+                # annotatorType=anno.annotator_type,
                           begin=anno.begin, end=anno.end,
                           result=anno.result,
                           metadata=anno.metadata,
@@ -79,11 +80,15 @@ def extract_base_sparkocr_features(row: pd.Series, configs: SparkOCRExtractorCon
         else:
             return {'visual_classifier_confidence': row}
 
+    # if 'FULL binary to image extractor ' in configs.name:
+    #     if not isinstance(row, str):
+    #         return {'path': row}
+
+
     else:
         # # OCR unpackers (TODO WIP)
         # unpack_text = lambda x: unpack_dict_list(x, 'text')
-        # # unpack_image = lambda x : unpack_dict_list(x, 'TODO') # is data?
-        # unpack_image_origin = lambda x: unpack_dict_list(x, 'origin')
+        # # unpack_image = lambda x : unpack_dict_list(x, 'TODO') # is data?       # unpack_image_origin = lambda x: unpack_dict_list(x, 'origin')
         # unpack_image_height = lambda x: unpack_dict_list(x, 'height')
         # unpack_image_width = lambda x: unpack_dict_list(x, 'width')
         # unpack_image_n_channels = lambda x: unpack_dict_list(x, 'nChannels')
@@ -130,6 +135,18 @@ def extract_base_sparkocr_features(row: pd.Series, configs: SparkOCRExtractorCon
         # return {**beginnings, **endings, **results, **annotator_types, **embeddings}  # Merge dicts OCR output
 
         return {}
+
+
+def extract_finisher_rows(row: pd.Series, configs: FinisherExtractorConfig):
+    d = {}
+    for r in row:
+        key = r['_1']
+        key = f'{configs.source_col_name}_{key}'
+        value = r['_2']
+        if key not in d:
+            d[key] = []
+        d[key].append(value)
+    return d
 
 
 def extract_base_sparknlp_features(row: pd.Series, configs: SparkNLPExtractorConfig) -> dict:
@@ -244,7 +261,7 @@ def extract_sparknlp_metadata(row: pd.Series, configs: SparkNLPExtractorConfig) 
         result = dict(
             zip(map(lambda x: 'meta_' + configs.output_col_prefix + '_' + x, keys_in_metadata), metadata_scalars))
         return result
-    extract_val_from_dic_list_to_list = lambda key: lambda x, y: x + [y[key]]
+    extract_val_from_dic_list_to_list = lambda key: lambda x, y: x + [y[key]] if key in y else x + [None]
     # List of lambda expression, on for each Key to be extracted. (TODO balcklisting?)
     dict_value_extractors = list(map(extract_val_from_dic_list_to_list, keys_in_metadata))
     # reduce list of dicts with same struct and a common key to a list of values for thay key. Leveraging closuer for meta_dict_list
@@ -268,7 +285,24 @@ def extract_master(row: pd.Series, configs: SparkNLPExtractorConfig) -> pd.Serie
     if isinstance(configs, SparkOCRExtractorConfig):
         base_annos = extract_base_sparkocr_features(row, configs)
     else:
-        base_annos = extract_base_sparknlp_features(row, configs)
+        if isinstance(configs, FinisherExtractorConfig):
+            # 1. if normal finisher col, just return val -> {finisher_col: [values]}
+            # 2. if meta finisher col, return grouped meta dict ->{m1: [v1,v2,..], m2: [v1,v2,..], ...}
+            # 3. double check with other anno behaviour
+            if configs.is_meta_field:
+                return pd.Series(
+                    {
+                        **extract_finisher_rows(row, configs)
+                    })
+            else:
+                return pd.Series(
+                    {
+                        configs.source_col_name: row
+                    })
+
+        else:
+            base_annos = extract_base_sparknlp_features(row, configs)
+
     # Get Metadata
     all_metas = extract_sparknlp_metadata(row, configs) if configs.get_meta or configs.get_full_meta else {}
 
@@ -287,6 +321,8 @@ def extract_master(row: pd.Series, configs: SparkNLPExtractorConfig) -> pd.Serie
         })
 
 
+
+
 def apply_extractors_and_merge(df, anno_2_ex_config, keep_stranger_features, stranger_features):
     """ apply extract_master on all fields with corrosponding configs after converting Pyspark Rows to List[Dict]
     and merge them to a final DF (1 to 1 mapping still)
@@ -296,6 +332,8 @@ def apply_extractors_and_merge(df, anno_2_ex_config, keep_stranger_features, str
     # keep df and ex_resolver in closure and apply base extractor with configs for each col
     extractor = lambda c: df[c].apply(extract_master, configs=anno_2_ex_config[c])
     keep_strangers = lambda c: df[c]
+
+    stranger_features.append('path') if 'path' in df.columns and 'text_entity' in anno_2_ex_config.keys() else None
 
     # merged_extraction_df
     # apply the extract_master together with it's configs to every column and geenrate a list of output DF's, one per Spark NLP COL
@@ -342,6 +380,7 @@ def zip_and_explode(df: pd.DataFrame, cols_to_explode: List[str]) -> pd.DataFram
             Elements of columns which are not in cols_to_explode, will be in lists
     """
     # Check cols we want to explode actually exist, if no data extracted cols can be missing
+    # print(df)
     missing = []
     for col in cols_to_explode:
         if col not in df.columns:
@@ -349,7 +388,18 @@ def zip_and_explode(df: pd.DataFrame, cols_to_explode: List[str]) -> pd.DataFram
     for miss in missing:
         cols_to_explode.remove(miss)
     # Drop duplicate cols
-    df = df.loc[:, ~df.columns.duplicated()]
+    # df = df.loc[:, ~df.columns.duplicated()]
+    if df.columns.duplicated().any():
+        # If there are duplicate column names, append a suffix to make them unique
+        cols = pd.Series(df.columns)
+        for dup in cols[cols.duplicated()].unique():
+            cols[cols[cols == dup].index.values.tolist()] = [dup + '.' + str(i) if i != 0 else dup for i in
+                                                             range(sum(cols == dup))]
+        df.columns = cols
+    else:
+        # If there are no duplicate column names, remove duplicate columns
+        df = df.loc[:, ~df.columns.duplicated()]
+
     if len(cols_to_explode) > 0:
         # We must pad all cols we want to explode to the same length because pandas limitation.
         # Spark API does not require this since it handles cols with not same length by creating nan. We do it ourselves here manually

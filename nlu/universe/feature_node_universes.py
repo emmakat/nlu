@@ -73,6 +73,15 @@ class NLP_FEATURE_NODES:  # or Mode Node?
     A = NLP_NODE_IDS
     F = NLP_FEATURES
     nodes = {
+        A.INSTRUCTOR_SENTENCE_EMBEDDINGS: NlpFeatureNode(A.INSTRUCTOR_SENTENCE_EMBEDDINGS, [F.DOCUMENT], [F.SENTENCE_EMBEDDINGS]),
+
+        A.E5_SENTENCE_EMBEDDINGS: NlpFeatureNode(A.E5_SENTENCE_EMBEDDINGS, [F.DOCUMENT],[F.SENTENCE_EMBEDDINGS]),
+        A.BGE_SENTENCE_EMBEDDINGS: NlpFeatureNode(A.BGE_SENTENCE_EMBEDDINGS, [F.DOCUMENT], [F.SENTENCE_EMBEDDINGS]),
+        A.MPNET_SENTENCE_EMBEDDINGS: NlpFeatureNode(A.MPNET_SENTENCE_EMBEDDINGS, [F.DOCUMENT], [F.SENTENCE_EMBEDDINGS]),
+
+        A.MPNET_FOR_SEQUENCE_CLASSIFICATION: NlpFeatureNode(A.MPNET_FOR_SEQUENCE_CLASSIFICATION, 
+                                                            [F.DOCUMENT, F.TOKEN],
+                                                            [F.SEQUENCE_CLASSIFICATION]),
 
         A.PARTIALLY_IMPLEMENTED: NlpFeatureNode(A.PARTIALLY_IMPLEMENTED, [F.UNKOWN], [F.UNKOWN]),
 
@@ -104,8 +113,8 @@ class NLP_FEATURE_NODES:  # or Mode Node?
                                                         [F.CLASSIFIED_SPAN]),
 
         A.CAMEMBERT_FOR_QUESTION_ANSWERING: NlpFeatureNode(A.CAMEMBERT_FOR_QUESTION_ANSWERING,
-                                                        [F.DOCUMENT_QUESTION, F.DOCUMENT_QUESTION_CONTEXT],
-                                                        [F.CLASSIFIED_SPAN]),
+                                                           [F.DOCUMENT_QUESTION, F.DOCUMENT_QUESTION_CONTEXT],
+                                                           [F.CLASSIFIED_SPAN]),
 
         A.BERT_FOR_QUESTION_ANSWERING: NlpFeatureNode(A.BERT_FOR_QUESTION_ANSWERING,
                                                       [F.DOCUMENT_QUESTION, F.DOCUMENT_QUESTION_CONTEXT],
@@ -131,6 +140,7 @@ class NLP_FEATURE_NODES:  # or Mode Node?
         # A.WAV2VEC_FOR_CTC: NlpFeatureNode(A.PARTIALLY_IMPLEMENTED, [F.AUDIO], [F.RECOGNIZED_SPEECH_TEXT]),
         A.WAV2VEC_FOR_CTC: NlpFeatureNode(A.WAV2VEC_FOR_CTC, [F.AUDIO], [E.RAW_TEXT]),
         A.HUBERT_FOR_CTC: NlpFeatureNode(A.HUBERT_FOR_CTC, [F.AUDIO], [E.RAW_TEXT]),
+        A.WHISPER_FOR_CTC: NlpFeatureNode(A.WHISPER_FOR_CTC, [F.AUDIO], [E.RAW_TEXT]),
 
         A.IMAGE_ASSEMBLER: NlpFeatureNode(A.IMAGE_ASSEMBLER, [F.SPARK_NLP_IMAGE, F.SPARK_NLP_FILE_PATH], [F.IMAGE]),
         A.DOCUMENT_NORMALIZER: NlpFeatureNode(A.DOCUMENT_NORMALIZER, [F.DOCUMENT], [F.DOCUMENT_GENERATED]),
@@ -185,7 +195,6 @@ class NLP_FEATURE_NODES:  # or Mode Node?
         A.YAKE_KEYWORD_EXTRACTION: NlpFeatureNode(A.YAKE_KEYWORD_EXTRACTION, [F.TOKEN], [F.CHUNK]),
         A.ALBERT_EMBEDDINGS: NlpFeatureNode(A.ALBERT_EMBEDDINGS, [F.DOCUMENT, F.TOKEN], [F.WORD_EMBEDDINGS]),
 
-
         A.CAMEMBERT_FOR_TOKEN_CLASSIFICATION: NlpFeatureNode(A.CAMEMBERT_FOR_TOKEN_CLASSIFICATION,
                                                              [F.DOCUMENT, F.TOKEN],
                                                              [F.TOKEN_CLASSIFICATION]),
@@ -210,8 +219,8 @@ class NLP_FEATURE_NODES:  # or Mode Node?
         A.ROBERTA_EMBEDDINGS: NlpFeatureNode(A.ROBERTA_EMBEDDINGS, [F.DOCUMENT, F.TOKEN], [F.WORD_EMBEDDINGS]),
         A.ROBERTA_FOR_TOKEN_CLASSIFICATION: NlpFeatureNode(A.ROBERTA_FOR_TOKEN_CLASSIFICATION, [F.DOCUMENT, F.TOKEN],
                                                            [F.TOKEN_CLASSIFICATION]),
-        A.ROBERTA_SENTENCE_EMBEDDINGS: NlpFeatureNode(A.ROBERTA_SENTENCE_EMBEDDINGS, [F.DOCUMENT],
-                                                      [F.SENTENCE_EMBEDDINGS]),
+        A.ROBERTA_SENTENCE_EMBEDDINGS: NlpFeatureNode(A.ROBERTA_SENTENCE_EMBEDDINGS, [F.DOCUMENT], [F.SENTENCE_EMBEDDINGS]),
+
         A.T5_TRANSFORMER: NlpFeatureNode(A.T5_TRANSFORMER, [F.DOCUMENT], [F.DOCUMENT_GENERATED]),
         A.UNIVERSAL_SENTENCE_ENCODER: NlpFeatureNode(A.UNIVERSAL_SENTENCE_ENCODER, [F.DOCUMENT],
                                                      [F.SENTENCE_EMBEDDINGS]),
@@ -230,15 +239,29 @@ class NLP_FEATURE_NODES:  # or Mode Node?
         A.BERT_FOR_SEQUENCE_CLASSIFICATION: NlpFeatureNode(A.BERT_FOR_SEQUENCE_CLASSIFICATION, [F.DOCUMENT, F.TOKEN],
                                                            [F.SEQUENCE_CLASSIFICATION]),
 
-        A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION : NlpFeatureNode(A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION, [F.DOCUMENT, F.TOKEN],
-                                                                 [F.SEQUENCE_CLASSIFICATION]),
+        A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION: NlpFeatureNode(A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION,
+                                                                [F.DOCUMENT, F.TOKEN],
+                                                                [F.SEQUENCE_CLASSIFICATION]),
+        A.XLM_ROBERTA_FOR_ZERO_SHOT_CLASSIFICATION: NlpFeatureNode(A.XLM_ROBERTA_FOR_ZERO_SHOT_CLASSIFICATION, [F.DOCUMENT, F.TOKEN],
+                                                            [F.SEQUENCE_CLASSIFICATION]),
+        A.BERT_FOR_ZERO_SHOT_CLASSIFICATION: NlpFeatureNode(A.BERT_FOR_ZERO_SHOT_CLASSIFICATION, [F.DOCUMENT, F.TOKEN],
+                                                            [F.SEQUENCE_CLASSIFICATION]),
+        A.BART_FOR_ZERO_SHOT_CLASSIFICATION: NlpFeatureNode(A.BART_FOR_ZERO_SHOT_CLASSIFICATION, [F.DOCUMENT, F.TOKEN],
+                                                            [F.SEQUENCE_CLASSIFICATION]),
 
-            A.DEBERTA_FOR_SEQUENCE_CLASSIFICATION: NlpFeatureNode(A.BERT_FOR_SEQUENCE_CLASSIFICATION, [F.DOCUMENT, F.TOKEN],
+        A.DEBERTA_FOR_SEQUENCE_CLASSIFICATION: NlpFeatureNode(A.BERT_FOR_SEQUENCE_CLASSIFICATION, [F.DOCUMENT, F.TOKEN],
                                                               [F.SEQUENCE_CLASSIFICATION]),
 
         A.DISTIL_BERT_FOR_SEQUENCE_CLASSIFICATION: NlpFeatureNode(A.DISTIL_BERT_FOR_SEQUENCE_CLASSIFICATION,
                                                                   [F.DOCUMENT, F.TOKEN],
                                                                   [F.SEQUENCE_CLASSIFICATION]),
+        A.DISTIL_BERT_FOR_ZERO_SHOT_CLASSIFICATION: NlpFeatureNode(A.DISTIL_BERT_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                                   [F.DOCUMENT, F.TOKEN],
+                                                                   [F.SEQUENCE_CLASSIFICATION]),
+
+        A.DEBERTA_FOR_ZERO_SHOT_CLASSIFICATION: NlpFeatureNode(A.DEBERTA_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                                   [F.DOCUMENT, F.TOKEN],
+                                                                   [F.SEQUENCE_CLASSIFICATION]),
 
         A.XLM_ROBERTA_FOR_SEQUENCE_CLASSIFICATION: NlpFeatureNode(A.XLM_ROBERTA_FOR_SEQUENCE_CLASSIFICATION,
                                                                   [F.DOCUMENT, F.TOKEN],
@@ -255,16 +278,23 @@ class NLP_FEATURE_NODES:  # or Mode Node?
         A.XLNET_FOR_SEQUENCE_CLASSIFICATION: NlpFeatureNode(A.XLNET_FOR_SEQUENCE_CLASSIFICATION,
                                                             [F.DOCUMENT, F.TOKEN],
                                                             [F.SEQUENCE_CLASSIFICATION]),
+        A.ROBERTA_FOR_ZERO_SHOT_CLASSIFICATION: NlpFeatureNode(A.ROBERTA_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                               [F.DOCUMENT, F.TOKEN],
+                                                               [F.SEQUENCE_CLASSIFICATION]),
         A.GPT2: NlpFeatureNode(A.GPT2, [F.DOCUMENT], [F.DOCUMENT_GENERATED]),
+        A.OPENAI_COMPLETION: NlpFeatureNode(A.OPENAI_COMPLETION, [F.DOCUMENT], [F.DOCUMENT_GENERATED]),
+        A.OPENAI_EMBEDDINGS: NlpFeatureNode(A.OPENAI_EMBEDDINGS, [F.DOCUMENT], [F.SENTENCE_EMBEDDINGS]),
         A.WORD_2_VEC: NlpFeatureNode(A.WORD_2_VEC, [F.TOKEN], [F.WORD_EMBEDDINGS]),
         A.BERT_SENTENCE_CHUNK_EMBEDDINGS: NlpFeatureNode(A.BERT_SENTENCE_CHUNK_EMBEDDINGS, [F.DOCUMENT],
                                                          [F.NAMED_ENTITY_CONVERTED]),
 
         A.VIT_IMAGE_CLASSIFICATION: NlpFeatureNode(A.VIT_IMAGE_CLASSIFICATION, [F.IMAGE], [F.CLASSIFIED_IMAGE]),
+        A.CONVNEXT_IMAGE_CLASSIFICATION: NlpFeatureNode(A.CONVNEXT_IMAGE_CLASSIFICATION, [F.IMAGE], [F.CLASSIFIED_IMAGE]),
         A.SWIN_IMAGE_CLASSIFICATION: NlpFeatureNode(A.SWIN_IMAGE_CLASSIFICATION, [F.IMAGE], [F.CLASSIFIED_IMAGE]),
+        A.BART_TRANSFORMER: NlpFeatureNode(A.BART_TRANSFORMER, [F.DOCUMENT], [F.DOCUMENT_GENERATED]),
+        A.M2M100_TRANSFORMER: NlpFeatureNode(A.M2M100_TRANSFORMER, [F.DOCUMENT], [F.DOCUMENT_GENERATED]),
 
     }
-
 
 @dataclass
 class OCR_FEATURE_NODES:
@@ -276,30 +306,36 @@ class OCR_FEATURE_NODES:
     A = OCR_NODE_IDS
     F = OCR_FEATURES
     nodes = {
+        A.FORM_RELATION_EXTRACTOR: OcrFeatureNode(A.FORM_RELATION_EXTRACTOR, [F.TEXT_ENTITY],
+                                                  [F.VISUAL_RELATION]),
+
         A.VISUAL_DOCUMENT_CLASSIFIER: OcrFeatureNode(A.VISUAL_DOCUMENT_CLASSIFIER, [F.HOCR],
-                                                     [F.VISUAL_CLASSIFIER_PREDICTION, F.VISUAL_CLASSIFIER_CONFIDENCE]),
+                                                     [F.VISUAL_CLASSIFIER_PREDICTION, F.VISUAL_CLASSIFIER_CONFIDENCE, F.FILE_PATH]),
 
         A.IMAGE2HOCR: OcrFeatureNode(A.IMAGE2HOCR, [F.OCR_IMAGE], [F.HOCR]),
 
         # VISUAL_DOCUMENT_NER : OcrFeatureNode(A.VISUAL_DOCUMENT_NER, [OcrFeature.HOCR, OcrFeature.FILE_PATH], [NlpFeature.NER_Annotation]), # TODO NlpFeature Space!
+        A.VISUAL_DOCUMENT_NER: OcrFeatureNode(A.VISUAL_DOCUMENT_NER, [F.TEXT_DOCUMENT_TOKENIZED, F.OCR_IMAGE],
+                                              [F.TEXT_ENTITY]),
 
         # Object Detection
-        A.IMAGE_HANDWRITTEN_DETECTOR: OcrFeatureNode(A.IMAGE_HANDWRITTEN_DETECTOR, [F.OCR_IMAGE, ], [F.OCR_REGION]),
+        A.IMAGE_SPLIT_REGIONS: OcrFeatureNode(A.IMAGE_SPLIT_REGIONS, [F.OCR_IMAGE,F.OCR_REGION], [F.IMG_SPLIT_REGIONS]),
 
-        # TABLE Processors/Recognition TODO REGION::CELL>??
-        A.IMAGE_TABLE_DETECTOR: OcrFeatureNode(A.IMAGE_TABLE_DETECTOR, [F.OCR_IMAGE, ], [F.OCR_TABLE]),
-        # TODO REGION or TABLE??? IS IT THE SAME???
-        A.IMAGE_TABLE_CELL_DETECTOR: OcrFeatureNode(A.IMAGE_TABLE_CELL_DETECTOR, [F.OCR_IMAGE, ], [F.OCR_TABLE_CELLS]),
-        # TODO REGION or TABLE??? IS IT THE SAME???
-        A.IMAGE_TABLE_CELL2TEXT_TABLE: OcrFeatureNode(A.IMAGE_TABLE_CELL2TEXT_TABLE, [F.OCR_IMAGE, F.OCR_TABLE_CELLS],
+        # VISUAL_DOCUMENT_NER : OcrFeatureNode(A.VISUAL_DOCUMENT_NER, [OcrFeature.HOCR, OcrFeature.FILE_PATH], [NlpFeature.NER_Annotation]), # TODO NlpFeature Space!
+
+        # Object Detection
+        A.IMAGE_HANDWRITTEN_DETECTOR: OcrFeatureNode(A.IMAGE_HANDWRITTEN_DETECTOR, [F.OCR_IMAGE], [F.OCR_REGION]),
+
+        # TABLE Processors/Recognition
+        A.IMAGE_TABLE_DETECTOR: OcrFeatureNode(A.IMAGE_TABLE_DETECTOR, [F.OCR_IMAGE], [F.OCR_REGION]),
+        A.IMAGE_TABLE_CELL_DETECTOR: OcrFeatureNode(A.IMAGE_TABLE_CELL_DETECTOR, [F.IMG_SPLIT_REGIONS, F.OCR_REGION],
+                                                    [F.OCR_TABLE_CELLS]),
+        A.IMAGE_TABLE_CELL2TEXT_TABLE: OcrFeatureNode(A.IMAGE_TABLE_CELL2TEXT_TABLE, [F.IMG_SPLIT_REGIONS,
+                                                                                      F.OCR_TABLE_CELLS],
                                                       [F.OCR_TABLE]),
-        # TODO OUPUT!! REGION or TABLE??? IS IT THE SAME???
-
-        # TODO are POSITIOns  and REGIONS the same??? Regions is an ARRAY of PSOTISIONS. BUT is REGION::: TABLE??? Samefor CELLs
         # PDF Processing
         A.PDF2TEXT: OcrFeatureNode(A.PDF2TEXT, [F.BINARY_PDF, F.FILE_PATH], [F.TEXT, F.PAGE_NUM]),
-        A.PDF2IMAGE: OcrFeatureNode(A.PDF2IMAGE, [F.BINARY_PDF, F.FILE_PATH, F.FALL_BACK], [F.OCR_IMAGE, F.PAGE_NUM]),
-        A.IMAGE2PDF: OcrFeatureNode(A.IMAGE2PDF, [F.OCR_IMAGE, F.FILE_PATH], [F.BINARY_PDF]),
+
         A.TEXT2PDF: OcrFeatureNode(A.TEXT2PDF, [F.OCR_POSITIONS, F.OCR_IMAGE, F.OCR_TEXT, F.FILE_PATH, F.BINARY_PDF],
                                    [F.BINARY_PDF]),
         A.PDF_ASSEMBLER: OcrFeatureNode(A.PDF_ASSEMBLER, [F.BINARY_PDF_PAGE, F.FILE_PATH, F.PAGE_NUM], [F.BINARY_PDF]),
@@ -338,22 +374,16 @@ class OCR_FEATURE_NODES:
         A.IMAGE_CROPPER: OcrFeatureNode(A.IMAGE_CROPPER, [F.OCR_IMAGE], [F.OCR_IMAGE]),  # TODO
         A.IMAGE2REGION: OcrFeatureNode(A.IMAGE2PDF, [F.OCR_IMAGE], [F.OCR_IMAGE]),  # TODO
         A.IMAGE_LAYOUT_ANALZYER: OcrFeatureNode(A.IMAGE_LAYOUT_ANALZYER, [F.OCR_IMAGE], [F.OCR_IMAGE]),  # TODO
-        A.IMAGE_SPLIT_REGIONS: OcrFeatureNode(A.IMAGE_SPLIT_REGIONS, [F.OCR_IMAGE], [F.OCR_IMAGE]),  # TODO
-        A.IMAGE_DRAW_REGIONS: OcrFeatureNode(A.IMAGE_DRAW_REGIONS, [F.OCR_IMAGE], [F.OCR_IMAGE]),  # TODO
+        # A.IMAGE_SPLIT_REGIONS: OcrFeatureNode(A.IMAGE_SPLIT_REGIONS, [F.OCR_IMAGE], [F.OCR_IMAGE]),  # TODO
 
-        # Character Recognition .. TODO these should be correct but not 100% sure about the positions
-        A.IMAGE2TEXT: OcrFeatureNode(A.IMAGE2TEXT, [F.OCR_IMAGE], [F.TEXT, F.OCR_POSITIONS]),
-        A.IMAGE2TEXTPDF: OcrFeatureNode(A.IMAGE2TEXTPDF, [F.OCR_IMAGE, F.FILE_PATH, F.PAGE_NUM], [F.BINARY_PDF]),
+        # Character Recognition .. TODO these should be correct but not 100% sure about the position
 
         # TODO is ouput HOCR format as in HOCR_DOCUMENT_ASSAMBLER???
         A.IMAGE_BRANDS2TEXT: OcrFeatureNode(A.IMAGE_BRANDS2TEXT, [F.OCR_IMAGE], [F.OCR_POSITIONS, F.TEXT,
                                                                                  F.OCR_IMAGE]),
-        # TODO what is the STRUCTURE of output image_brand ??? OCR_IE??
-        A.POSITION_FINDER: OcrFeatureNode(A.POSITION_FINDER, [F.TEXT_ENTITY, F.OCR_PAGE_MATRIX], [F.OCR_POSITIONS]),
-        # TODO COORDINATE::POSITION??
         ##  TODO Updates text at a position? I.e. Change the text at given corodinates BUT THEN why is output position???
         A.UPDATE_TEXT_POSITION: OcrFeatureNode(A.POSITION_FINDER, [F.OCR_POSITIONS, F.TEXT_ENTITY], [F.OCR_POSITIONS]),
-        # TODO COORDINATE::POSITION??
+
         ## Cancer Document Test parser. Required Text of Header Field of something
         A.FOUNDATION_ONE_REPORT_PARSER: OcrFeatureNode(A.FOUNDATION_ONE_REPORT_PARSER, [F.OCR_TEXT, F.FILE_PATH],
                                                        [F.JSON_FOUNDATION_ONE_REPORT]),
@@ -361,6 +391,18 @@ class OCR_FEATURE_NODES:
         A.HOCR_DOCUMENT_ASSEMBLER: OcrFeatureNode(A.HOCR_TOKENIZER, [F.HOCR], [F.TEXT_DOCUMENT]),
 
         A.HOCR_TOKENIZER: OcrFeatureNode(A.HOCR_TOKENIZER, [F.HOCR], [F.TEXT_DOCUMENT_TOKENIZED]),
+
+        A.PDF2IMAGE: OcrFeatureNode(A.PDF2IMAGE, [F.BINARY_PDF], [F.OCR_IMAGE]),
+
+        A.IMAGE2TEXT: OcrFeatureNode(A.IMAGE2TEXT, [F.OCR_IMAGE], [F.TEXT]),
+
+        A.POSITION_FINDER: OcrFeatureNode(A.POSITION_FINDER, [F.TEXT_ENTITY, F.OCR_PAGE_MATRIX], [F.OCR_POSITIONS]),
+
+        A.IMAGE_DRAW_REGIONS: OcrFeatureNode(A.IMAGE_DRAW_REGIONS, [F.OCR_IMAGE, F.OCR_POSITIONS], [F.IMG_DRAW_REGIONS]),  # TODO
+
+        A.IMAGE2PDF: OcrFeatureNode(A.IMAGE2PDF, [F.IMG_DRAW_REGIONS], [F.BINARY_PDF]),
+
+        A.IMAGE2TEXTPDF: OcrFeatureNode(A.IMAGE2TEXTPDF, [F.OCR_IMAGE, F.FILE_PATH, F.PAGE_NUM], [F.BINARY_PDF]),
     }
 
 
@@ -376,8 +418,14 @@ class NLP_HC_FEATURE_NODES():
     H_F = NLP_HC_FEATURES
     # HC Feature Nodes
     nodes = {
-        A.ZERO_SHOT_NER : NlpHcFeatureNode(A.ZERO_SHOT_NER, [F.TOKEN, F.DOCUMENT],
-                                           [F.NAMED_ENTITY_IOB]),
+        A.MEDICAL_QUESTION_ANSWERING: NlpFeatureNode(A.MEDICAL_QUESTION_ANSWERING, [F.DOCUMENT_QUESTION, F.DOCUMENT_QUESTION_CONTEXT], [F.CLASSIFIED_SPAN]),
+
+        A.MEDICAL_TEXT_GENERATOR: NlpFeatureNode(A.MEDICAL_TEXT_GENERATOR, [F.DOCUMENT], [F.DOCUMENT_GENERATED]),
+
+        A.MEDICAL_SUMMARIZER: NlpFeatureNode(A.MEDICAL_SUMMARIZER, [F.DOCUMENT], [F.DOCUMENT_GENERATED]),
+
+        A.ZERO_SHOT_NER: NlpHcFeatureNode(A.ZERO_SHOT_NER, [F.TOKEN, F.DOCUMENT],
+                                          [F.NAMED_ENTITY_IOB]),
         A.CHUNK_MAPPER_MODEL: NlpHcFeatureNode(A.CHUNK_MAPPER_MODEL, [F.NAMED_ENTITY_CONVERTED],
                                                [H_F.MAPPED_CHUNK]),
 

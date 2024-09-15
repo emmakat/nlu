@@ -6,17 +6,18 @@ IF there is only 1 component_to_resolve of <type> in the component_list, the <ty
 - we remove all _<field> suffixex
 - replace all '@' with '_'
 """
+import logging
 from typing import List
 
+from nlu.universe.feature_node_ids import NLP_NODE_IDS
 from sparknlp.annotator import *
 
 import nlu
-from nlu.universe.feature_universes import NLP_FEATURES
 from nlu.pipe.col_substitution import substitution_map_OS
-from nlu.pipe.col_substitution import col_substitution_OS
 import logging
 
 from nlu.pipe.extractors.extractor_base_data_classes import SparkOCRExtractorConfig
+from nlu.universe.feature_universes import NLP_FEATURES
 from nlu.universe.logic_universes import AnnoTypes
 from nlu.universe.universes import Licenses
 
@@ -47,7 +48,6 @@ class ColSubstitutionUtils:
     """Utils for substituting col names in Pythonify to short and meaningful names.
     Uses custom rename methods for either PySpark or Pandas
     """
-    from sparknlp.annotator import MarianTransformer
     cleanable_splits = ['ner_converter', 'spell', 'ner_to_chunk_converter', 'train', 'classify', 'ner', 'med_ner', 'dl',
                         'match', 'clean', 'sentiment', 'embed', 'embed_sentence', 'embed_chunk', 'explain', 'pos',
                         'resolve_chunk', 'resolve', ]
@@ -66,20 +66,28 @@ class ColSubstitutionUtils:
         anno2final_cols = {}  # mapping of final col names to annotator class Key=AnnoModel, Value=List of Result cols
         new_cols = {}
         if pipe.has_licensed_components:
-            from nlu.pipe.col_substitution import col_substitution_HC
             from nlu.pipe.col_substitution import substitution_map_HC
         deducted_component_names = ColSubstitutionUtils.deduct_component_names(pipe)
         for c in pipe.components:
             if c.license == Licenses.ocr:
+                from nlu.pipe.col_substitution import substitution_map_OCR
                 # TODO better substitution
                 old2new_anno_cols = {k: k for k in c.spark_output_column_names}
                 anno2final_cols[c.model] = list(old2new_anno_cols.values())
                 new_cols.update(old2new_anno_cols)
                 new_cols = {**new_cols, **(old2new_anno_cols)}
-                continue
+                if type(c.model) in substitution_map_OCR.OCR_anno2substitution_fn.keys():
+                    cols = df.columns.tolist()
+                    substitution_fn = substitution_map_OCR.OCR_anno2substitution_fn[type(c.model)]['default']
+                    old2new_anno_cols = substitution_fn(c, cols, deducted_component_names[c])
+                    anno2final_cols[c.model] = list(old2new_anno_cols.values())
+                    new_cols = {**new_cols, **(old2new_anno_cols)}
+                    continue
             if 'embedding' in c.type and get_embeddings == False: continue
             cols_to_substitute = ColSubstitutionUtils.get_final_output_cols_of_component(c, df, anno_2_ex)
-
+            if len(cols_to_substitute) == 0:
+                # finisher cleaned components cols
+                continue
             if type(c.model) in substitution_map_OS.OS_anno2substitution_fn.keys():
                 substitution_fn = substitution_map_OS.OS_anno2substitution_fn[type(c.model)]['default']
             else:
@@ -94,6 +102,7 @@ class ColSubstitutionUtils:
                 anno2final_cols[c.model] = list(old2new_anno_cols.values())
                 new_cols.update(old2new_anno_cols)
                 continue
+
             # dic, key=old_col, value=new_col. Some cols may be omitted and missing from the dic which are deemed irrelevant. Behaivour can be disabled by setting drop_debug_cols=False
             old2new_anno_cols = substitution_fn(c, cols_to_substitute, deducted_component_names[c])
             anno2final_cols[c.model] = list(old2new_anno_cols.values())
@@ -104,7 +113,8 @@ class ColSubstitutionUtils:
         for k in cols_to_rename:
             # some cols might not exist because no annotations generated, so we need to double check it really exists
             if k not in df.columns: del new_cols[k]
-        return df.rename(columns=new_cols)[set(new_cols.values()).union(set(stranger_cols))] if drop_debug_cols else \
+        return df.rename(columns=new_cols)[
+            list(set(new_cols.values()).union(set(stranger_cols)))] if drop_debug_cols else \
             df.rename(columns=new_cols)
 
     @staticmethod
@@ -114,11 +124,37 @@ class ColSubstitutionUtils:
         os_components in dataframe df for anno_2_ex configs """
         og_output_col = c.spark_output_column_names[0]
 
+        # may be missing because finisher cleaning
+        if og_output_col not in anno_2_ex: return []
         configs = anno_2_ex[og_output_col]
+
+        if c.name == NLP_NODE_IDS.FINISHER:
+            result_cols = c.model.getOutputCols()
+            result_cols = [c for c in df.columns if any(c.startswith(s) for s in result_cols)]
+            return result_cols
         result_cols = []
         if isinstance(configs, SparkOCRExtractorConfig):
             # TODO better OCR-EX handling --> Col Name generator function which we use everywhere for unified col naming !!!!!
-            return ['text']
+            # return ['text']
+            for col in df.columns:
+                if 'meta_' + configs.output_col_prefix in col:
+                    base_meta_prefix = 'meta_' + configs.output_col_prefix
+                    meta_col_name = base_meta_prefix + col.split(base_meta_prefix)[-1]
+                    if meta_col_name in df.columns:
+                        # special case for overlapping names with _
+                        if col.split(base_meta_prefix)[-1].split('_')[1].isnumeric() and not \
+                                c.spark_output_column_names[0].split('_')[-1].isnumeric(): continue
+                        if col.split(base_meta_prefix)[-1].split('_')[1].isnumeric() and \
+                                c.spark_output_column_names[0].split('_')[-1].isnumeric():
+                            id1 = int(col.split(base_meta_prefix)[-1].split('_')[1])
+                            id2 = int(c.spark_output_column_names.split('_')[-1])
+                            if id1 != id2: continue
+                        result_cols.append(meta_col_name)
+                    elif c.type == AnnoTypes.CHUNK_CLASSIFIER:
+                        result_cols.append(col)
+                    else:
+                        logger.info(f"Could not find meta col for os_components={c}, col={col}. Ommiting col..")
+            return result_cols
         if isinstance(c.model, MultiDocumentAssembler):
             return [f'{NLP_FEATURES.DOCUMENT_QUESTION}_results', f'{NLP_FEATURES.DOCUMENT_QUESTION_CONTEXT}_results']
 

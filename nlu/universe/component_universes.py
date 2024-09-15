@@ -8,9 +8,21 @@ from nlu.components.chunkers.default_chunker.default_chunker import DefaultChunk
 from nlu.components.chunkers.ngram.ngram import NGram
 from nlu.components.classifiers.asr.wav2Vec import Wav2Vec
 from nlu.components.classifiers.asr_hubert.hubert import Hubert
+from nlu.components.classifiers.asr_whisper.whisper import Whisper
+from nlu.components.classifiers.xlm_roberta_zero_shot_classification.xlm_roberta_zero_shot import XlmRobertaZeroShotClassifier
+from nlu.components.classifiers.bert_zero_shot_classification.bert_zero_shot import BertZeroShotClassifier
+from nlu.components.classifiers.bart_zero_shot_classification.bart_zero_shot import BartZeroShotClassifier
 from nlu.components.classifiers.classifier_dl.classifier_dl import ClassifierDl
+from nlu.components.classifiers.distil_bert_zero_shot_classification.distil_bert_zero_shot import \
+    DistilBertZeroShotClassifier
+
+from nlu.components.classifiers.deberta_zero_shot.deberta_zero_shot import DeBertaZeroShotClassifier
+
+
 from nlu.components.classifiers.generic_classifier.generic_classifier import GenericClassifier
 from nlu.components.classifiers.image_classification_swin.swin import SwinImageClassifier
+from nlu.components.classifiers.image_classification_vit.convnext_image_classification import ConvNextImageClassifier
+from nlu.components.classifiers.image_classification_vit.vit_image_classifier import VitImageClassifier
 from nlu.components.classifiers.language_detector.language_detector import LanguageDetector
 from nlu.components.classifiers.multi_classifier.multi_classifier import MultiClassifier
 from nlu.components.classifiers.named_entity_recognizer_crf.ner_crf import NERDLCRF
@@ -32,14 +44,16 @@ from nlu.components.classifiers.seq_longformer.seq_longformer import SeqLongform
 from nlu.components.classifiers.seq_roberta.seq_roberta import SeqRobertaClassifier
 from nlu.components.classifiers.seq_xlm_roberta.seq_xlm_roberta import SeqXlmRobertaClassifier
 from nlu.components.classifiers.seq_xlnet.seq_xlnet import SeqXlnetClassifier
+from nlu.components.classifiers.seq_mpnet.seq_mpnet import SeqMPNetClassifier 
 from nlu.components.classifiers.span_bert.span_bert import SpanBertClassifier
+from nlu.components.classifiers.span_albert.span_albert import SpanAlbertClassifier
+from nlu.components.classifiers.span_camembert.span_camembert import SpanCamemBert
 from nlu.components.classifiers.span_deberta.span_deberta import SpanDeBertaClassifier
 from nlu.components.classifiers.span_distilbert.span_distilbert import SpanDistilBertClassifier
 from nlu.components.classifiers.span_longformer.span_longformer import SpanLongFormerClassifier
 from nlu.components.classifiers.span_roberta.span_roberta import SpanRobertaClassifier
-
-from nlu.components.classifiers.span_camembert.span_camembert import SpanCamemBert
 from nlu.components.classifiers.span_xlm_roberta.span_xlm_roberta import SpanXlmRobertaClassifier
+from nlu.components.classifiers.span_medical.span_medical import SpanMedical
 from nlu.components.classifiers.token_albert.token_albert import TokenAlbert
 from nlu.components.classifiers.token_bert.token_bert import TokenBert
 from nlu.components.classifiers.token_bert_healthcare.token_bert_healthcare import TokenBertHealthcare
@@ -51,7 +65,6 @@ from nlu.components.classifiers.token_roberta.token_roberta import TokenRoBerta
 from nlu.components.classifiers.token_xlm_roberta.token_xlmroberta import TokenXlmRoBerta
 from nlu.components.classifiers.token_xlnet.token_xlnet import TokenXlnet
 from nlu.components.classifiers.vivekn_sentiment.vivekn_sentiment_detector import ViveknSentiment
-from nlu.components.classifiers.image_classification_vit.vit_image_classifier import VitImageClassifier
 from nlu.components.classifiers.yake.yake import Yake
 from nlu.components.coref.coref_bert.coref_bert import CorefBert
 from nlu.components.deidentifiers.deidentifier.deidentifier import Deidentifier
@@ -70,7 +83,12 @@ from nlu.components.embeddings.elmo.spark_nlp_elmo import SparkNLPElmo
 from nlu.components.embeddings.glove.glove import Glove
 from nlu.components.embeddings.longformer.longformer import Longformer
 from nlu.components.embeddings.roberta.roberta import Roberta
+from nlu.components.embeddings.sentence_e5.E5SentenceEmbedding import E5
+from nlu.components.embeddings.sentence_bge.BGESentenceEmbedding import BGE
 from nlu.components.embeddings.sentence_bert.BertSentenceEmbedding import BertSentence
+from nlu.components.embeddings.sentence_roberta.RobertaSentenceEmbedding import RobertaSentence
+from nlu.components.embeddings.sentence_mpnet.MPNetSentenceEmbedding import MPNetSentence
+from nlu.components.embeddings.instructor_sentence.InstructorEmbeddings import Instructor
 from nlu.components.embeddings.sentence_xlm.sentence_xlm import Sentence_XLM
 from nlu.components.embeddings.use.spark_nlp_use import SparkNLPUse
 from nlu.components.embeddings.word2vec.word2vec import Word2Vec
@@ -80,7 +98,6 @@ from nlu.components.embeddings_chunks.chunk_embedder.chunk_embedder import Chunk
 from nlu.components.lemmatizers.lemmatizer.spark_nlp_lemmatizer import SparkNLPLemmatizer
 from nlu.components.matchers.regex_matcher.regex_matcher import RegexMatcher
 from nlu.components.normalizers.document_normalizer.spark_nlp_document_normalizer import SparkNLPDocumentNormalizer
-from nlu.components.utils.image_assembler.spark_nlp_image_assembler import SparkNlpImageAssembler
 from nlu.components.normalizers.drug_normalizer.drug_normalizer import DrugNorm
 from nlu.components.normalizers.normalizer.spark_nlp_normalizer import SparkNLPNormalizer
 from nlu.components.relation_extractors.relation_extractor.relation_extractor import RelationExtraction
@@ -90,8 +107,14 @@ from nlu.components.relation_extractors.zero_shot_relation_extractor.zero_shot_r
 from nlu.components.resolutions.sentence_entity_resolver.sentence_resolver import SentenceResolver
 from nlu.components.sentence_detectors.deep_sentence_detector.deep_sentence_detector import SentenceDetectorDeep
 from nlu.components.sentence_detectors.pragmatic_sentence_detector.sentence_detector import PragmaticSentenceDetector
+from nlu.components.seq2seqs.bart_transformer.bart_transformer import SparkNLPBartTransformer
+from nlu.components.seq2seqs.m2m100_transformer.m2m100_transformer import M2M100
 from nlu.components.seq2seqs.gpt2.gpt2 import GPT2
+from nlu.components.seq2seqs.openai_completion.openai_completion import OpenaiCompletion
+from nlu.components.embeddings.openai_embeddings.openai_embeddings import OpenaiEmbeddings
 from nlu.components.seq2seqs.marian.marian import Marian
+from nlu.components.seq2seqs.med_summarizer.med_summarizer import MedSummarizer
+from nlu.components.seq2seqs.med_text_generator.med_text_generator import MedTextGenerator
 from nlu.components.seq2seqs.t5.t5 import T5
 from nlu.components.seq2seqs.tapas_qa.tapas_qa import TapasQA
 from nlu.components.spell_checkers.context_spell.context_spell_checker import ContextSpellChecker
@@ -106,6 +129,7 @@ from nlu.components.utils.audio_assembler.audio_assembler import AudioAssembler_
 from nlu.components.utils.chunk_2_doc.doc_2_chunk import Chunk_2_Doc
 from nlu.components.utils.doc2chunk.doc_2_chunk import Doc_2_Chunk
 from nlu.components.utils.document_assembler.spark_nlp_document_assembler import SparkNlpDocumentAssembler
+from nlu.components.utils.image_assembler.spark_nlp_image_assembler import SparkNlpImageAssembler
 from nlu.components.utils.multi_document_assembler.spark_nlp_multi_document_assembler import \
     SparkNlpMultiDocumentAssembler
 from nlu.components.utils.ner_to_chunk_converter.ner_to_chunk_converter import NerToChunkConverter
@@ -116,19 +140,34 @@ from nlu.components.utils.sentence_embeddings.spark_nlp_sentence_embedding impor
 from nlu.components.utils.table_assembler.spark_nlp_multi_document_assembler import SparkNlpTableAssembler
 from nlu.ocr_components.table_extractors.doc_table_extractor.doc2table import Doc2TextTable
 from nlu.ocr_components.table_extractors.pdf_table_extractor.pdf2table import PDF2TextTable
+from nlu.ocr_components.table_extractors.pdf2image.pdf2image import PDF2Image
+from nlu.ocr_components.table_extractors.imag2pdf.image2pdf import Image2PDF
 from nlu.ocr_components.table_extractors.ppt_table_extractor.ppt2table import PPT2TextTable
+from nlu.ocr_components.visual_classifiers.visual_document_classifier.visual_document_classifier import VisualDocClassifier
 from nlu.ocr_components.text_recognizers.doc2text.doc2text import Doc2Text
 from nlu.ocr_components.text_recognizers.img2text.img2text import Img2Text
 from nlu.ocr_components.text_recognizers.pdf2text.pdf2text import Pdf2Text
 from nlu.ocr_components.utils.binary2image.binary2image import Binary2Image
+from nlu.ocr_components.utils.hocr_tokenizer.hocr_tokenizer import HocrTokenizer
 from nlu.ocr_components.utils.image2hocr.image2hocr import Image2Hocr
-
+from nlu.ocr_components.table_extractors.image2table.image2table import IMAGE_TABLE_DETECTOR
+from nlu.ocr_components.visual_ner.visual_document_ner.visual_document_ner import VisualDocumentNer
+from nlu.ocr_components.table_extractors.image2table_cell.image2table_cell import ImageTableCellDetector
+from nlu.ocr_components.form_relation_extractor.form_relation_extractor import FormRelationExtractor
+from nlu.ocr_components.table_extractors.image_table_cell2text.image_table_cell2text import ImageTable2Cell2TextTable
+from nlu.ocr_components.utils.image_split_regions.image_split_regions import ImageSplitRegions
+from nlu.ocr_components.utils.image_draw_regions.image_draw_regions import ImageDrawRegions
+from nlu.ocr_components.utils.position_finder.position_finder import PositionFinder
 # from nlu.ocr_components.visual_classifiers.visual_doc_classifier.visual_doc_classifier import VisualDocClassifier
 from nlu.pipe.col_substitution.col_substitution_HC import *
-from nlu.pipe.col_substitution.col_substitution_OCR import substitute_recognized_text_cols
+from nlu.pipe.col_substitution.col_substitution_OCR import substitute_recognized_text_cols, \
+    substitute_document_classifier_text_cols, substitute_form_extractor_text_cols
+from nlu.pipe.col_substitution.col_substitution_OCR import substitute_recognized_text_cols,substitute_document_ner_cols
 from nlu.pipe.col_substitution.col_substitution_OS import *
 from nlu.pipe.extractors.extractor_configs_HC import *
-from nlu.pipe.extractors.extractor_configs_OCR import default_text_recognizer_config, default_binary_to_image_config
+from nlu.pipe.extractors.extractor_configs_OCR import default_text_recognizer_config, default_binary_to_image_config, \
+    default_visual_classifier_config,default_form_relation_extractor_config, default_position_finder_config
+from nlu.pipe.extractors.extractor_configs_OCR import default_text_recognizer_config, default_binary_to_image_config, default_visual_ner_config, default_pdf_to_image_config
 from nlu.pipe.extractors.extractor_configs_OS import *
 from nlu.pipe.nlu_component import NluComponent
 from nlu.universe.annotator_class_universe import AnnoClassRef
@@ -745,6 +784,23 @@ class ComponentUniverse:
                                             name=A.PARTIAL_ChunkMergeApproach,
                                             jsl_anno_class_id=A.PARTIAL_TextMatcherModel,
                                             jsl_anno_py_class=ACR.JSL_anno2_py_class[A.PARTIAL_TextMatcherModel],
+                                            node=NLP_FEATURE_NODES.nodes[A.PARTIALLY_IMPLEMENTED],
+                                            type=T.PARTIALLY_READY,
+                                            pdf_extractor_methods={'default': default_partial_implement_config,
+                                                                   'default_full': default_full_config, },
+                                            pdf_col_name_substitutor=partially_implemented_substitutor,
+                                            output_level=L.DOCUMENT,
+                                            description='Not fully integrated',
+                                            provider=ComponentBackends.open_source,
+                                            license=Licenses.open_source,
+                                            computation_context=ComputeContexts.spark,
+                                            output_context=ComputeContexts.spark,
+                                            ),
+
+        A.PARTIAL_TextMatcherInternalModel: partial(NluComponent,
+                                            name=A.PARTIAL_ChunkMergeApproach,
+                                            jsl_anno_class_id=A.PARTIAL_TextMatcherInternalModel,
+                                            jsl_anno_py_class=ACR.JSL_anno2_py_class[A.PARTIAL_TextMatcherInternalModel],
                                             node=NLP_FEATURE_NODES.nodes[A.PARTIALLY_IMPLEMENTED],
                                             type=T.PARTIALLY_READY,
                                             pdf_extractor_methods={'default': default_partial_implement_config,
@@ -1401,7 +1457,7 @@ class ComponentUniverse:
                                       type=T.HELPER_ANNO,
                                       get_default_model=SparkNlpDocumentAssembler.get_default_model,
                                       pdf_extractor_methods={'default': default_document_config,
-                                                             'default_full': default_full_config },
+                                                             'default_full': default_full_config},
                                       pdf_col_name_substitutor=substitute_doc_assembler_cols,
                                       output_level=L.DOCUMENT,
                                       node=NLP_FEATURE_NODES.nodes[A.DOCUMENT_ASSEMBLER],
@@ -1453,22 +1509,43 @@ class ComponentUniverse:
                                    ),
 
         A.HUBERT_FOR_CTC: partial(NluComponent,
-                                   name=A.HUBERT_FOR_CTC,
+                                  name=A.HUBERT_FOR_CTC,
+                                  type=T.SPEECH_RECOGNIZER,
+                                  get_default_model=Hubert.get_default_model,
+                                  get_pretrained_model=Hubert.get_pretrained_model,
+                                  pdf_extractor_methods={'default': default_only_result_config,
+                                                         'default_full': default_full_config, },
+                                  pdf_col_name_substitutor=substitute_wav2vec_cols,
+                                  output_level=L.DOCUMENT,
+                                  node=NLP_FEATURE_NODES.nodes[A.HUBERT_FOR_CTC],
+                                  description='todo',
+                                  provider=ComponentBackends.open_source,
+                                  license=Licenses.open_source,
+                                  computation_context=ComputeContexts.spark,
+                                  output_context=ComputeContexts.spark,
+                                  jsl_anno_class_id=A.HUBERT_FOR_CTC,
+                                  jsl_anno_py_class=ACR.JSL_anno2_py_class[A.HUBERT_FOR_CTC],
+                                  # Bas on Librosa which uses http://www.mega-nerd.com/libsndfile/
+                                  applicable_file_types=['wav', 'mp3', 'flac', 'aiff', 'aifc', 'ogg', 'aflac', 'alac',
+                                                         'dsd', 'pcm', ]
+                                  ),
+        A.WHISPER_FOR_CTC: partial(NluComponent,
+                                   name=A.WHISPER_FOR_CTC,
                                    type=T.SPEECH_RECOGNIZER,
-                                   get_default_model=Hubert.get_default_model,
-                                   get_pretrained_model=Hubert.get_pretrained_model,
+                                   get_default_model=Whisper.get_default_model,
+                                   get_pretrained_model=Whisper.get_pretrained_model,
                                    pdf_extractor_methods={'default': default_only_result_config,
                                                           'default_full': default_full_config, },
                                    pdf_col_name_substitutor=substitute_wav2vec_cols,
                                    output_level=L.DOCUMENT,
-                                   node=NLP_FEATURE_NODES.nodes[A.HUBERT_FOR_CTC],
-                                   description='todo',
+                                   node=NLP_FEATURE_NODES.nodes[A.WHISPER_FOR_CTC],
+                                   description='Whisper is an automatic speech recognition (ASR) system trained on 680,000 hours of multilingual and multitask supervised data collected from the web. It transcribe in multiple languages, as well as translate from those languages into English.',
                                    provider=ComponentBackends.open_source,
                                    license=Licenses.open_source,
                                    computation_context=ComputeContexts.spark,
                                    output_context=ComputeContexts.spark,
-                                   jsl_anno_class_id=A.HUBERT_FOR_CTC,
-                                   jsl_anno_py_class=ACR.JSL_anno2_py_class[A.HUBERT_FOR_CTC],
+                                   jsl_anno_class_id=A.WHISPER_FOR_CTC,
+                                   jsl_anno_py_class=ACR.JSL_anno2_py_class[A.WHISPER_FOR_CTC],
                                    # Bas on Librosa which uses http://www.mega-nerd.com/libsndfile/
                                    applicable_file_types=['wav', 'mp3', 'flac', 'aiff', 'aifc', 'ogg', 'aflac', 'alac',
                                                           'dsd', 'pcm', ]
@@ -1495,25 +1572,23 @@ class ComponentUniverse:
                                 ),
 
         A.TABLE_ASSEMBLER: partial(NluComponent,
-                         name=A.TABLE_ASSEMBLER,
-                         type=T.HELPER_ANNO,
-                         get_default_model=SparkNlpTableAssembler.get_default_model,
-                         pdf_extractor_methods={'default': default_only_result_config, # TODO
-                                                'default_full': default_full_config, },
-                         pdf_col_name_substitutor=substitute_wav2vec_cols, # TODO
-                         output_level=L.DOCUMENT,
-                         node=NLP_FEATURE_NODES.nodes[A.TABLE_ASSEMBLER],
-                         description='todo',
-                         provider=ComponentBackends.open_source,
-                         license=Licenses.open_source,
-                         computation_context=ComputeContexts.spark,
-                         output_context=ComputeContexts.spark,
-                         jsl_anno_class_id=A.TABLE_ASSEMBLER,
-                         jsl_anno_py_class=ACR.JSL_anno2_py_class[A.TABLE_ASSEMBLER],
-                         applicable_file_types=['csv', 'json'] # or str/pd format
-                         ),
-
-
+                                   name=A.TABLE_ASSEMBLER,
+                                   type=T.HELPER_ANNO,
+                                   get_default_model=SparkNlpTableAssembler.get_default_model,
+                                   pdf_extractor_methods={'default': default_only_result_config,  # TODO
+                                                          'default_full': default_full_config, },
+                                   pdf_col_name_substitutor=substitute_wav2vec_cols,  # TODO
+                                   output_level=L.DOCUMENT,
+                                   node=NLP_FEATURE_NODES.nodes[A.TABLE_ASSEMBLER],
+                                   description='todo',
+                                   provider=ComponentBackends.open_source,
+                                   license=Licenses.open_source,
+                                   computation_context=ComputeContexts.spark,
+                                   output_context=ComputeContexts.spark,
+                                   jsl_anno_class_id=A.TABLE_ASSEMBLER,
+                                   jsl_anno_py_class=ACR.JSL_anno2_py_class[A.TABLE_ASSEMBLER],
+                                   applicable_file_types=['csv', 'json']  # or str/pd format
+                                   ),
 
         A.DOCUMENT_NORMALIZER: partial(NluComponent,
                                        name=A.DOCUMENT_NORMALIZER,
@@ -1533,19 +1608,16 @@ class ComponentUniverse:
                                        jsl_anno_py_class=ACR.JSL_anno2_py_class[A.DOCUMENT_NORMALIZER],
                                        ),
 
-        A.FINISHER: partial(NluComponent,  # TODO WIP
+        A.FINISHER: partial(NluComponent,
                             name=A.FINISHER,
                             type=T.HELPER_ANNO,
                             get_default_model=SdfFinisher.get_default_model,
-                            # TODO EXTRACTOR
                             pdf_extractor_methods={'default': default_full_config,
                                                    'default_full': default_full_config, },
-                            # TODO SUBSTITOR
-                            pdf_col_name_substitutor=None,  # TODO no sub defined
+                            pdf_col_name_substitutor=substitute_finisher_cols,
                             output_level=L.DOCUMENT,
-                            # TODO sub-token actually(?)
                             node=NLP_FEATURE_NODES.nodes[A.FINISHER],
-                            description='Get lemmatized base version of tokens',
+                            description='Finisher transformer to output the results of a pipeline.',
                             provider=ComponentBackends.open_source,
                             license=Licenses.open_source,
                             computation_context=ComputeContexts.spark,
@@ -2244,17 +2316,17 @@ class ComponentUniverse:
                                                         A.DEBERTA_FOR_TOKEN_CLASSIFICATION],
                                                     ),
 
-
         A.CAMEMBERT_FOR_TOKEN_CLASSIFICATION: partial(NluComponent,
                                                       name=A.CAMEMBERT_FOR_TOKEN_CLASSIFICATION,
                                                       type=T.TRANSFORMER_TOKEN_CLASSIFIER,
                                                       get_default_model=TokenCamembert.get_default_model,
                                                       get_pretrained_model=TokenCamembert.get_pretrained_model,
                                                       pdf_extractor_methods={'default': default_token_classifier_config,
-                                                                          'default_full': default_full_config, },
+                                                                             'default_full': default_full_config, },
                                                       pdf_col_name_substitutor=substitute_transformer_token_classifier_cols,
                                                       output_level=L.TOKEN,  # Handled like NER model_anno_obj
-                                                      node=NLP_FEATURE_NODES.nodes[A.CAMEMBERT_FOR_TOKEN_CLASSIFICATION],
+                                                      node=NLP_FEATURE_NODES.nodes[
+                                                          A.CAMEMBERT_FOR_TOKEN_CLASSIFICATION],
                                                       description='CamemBertForTokenClassification can load ALBERT Models with a token classification head on top (a linear layer on top of the hidden-states output) e.g. for Named-Entity-Recognition (NER) tasks.',
                                                       provider=ComponentBackends.open_source,
                                                       license=Licenses.open_source,
@@ -2262,9 +2334,8 @@ class ComponentUniverse:
                                                       output_context=ComputeContexts.spark,
                                                       jsl_anno_class_id=A.CAMEMBERT_FOR_TOKEN_CLASSIFICATION,
                                                       jsl_anno_py_class=ACR.JSL_anno2_py_class[
-                                                       A.CAMEMBERT_FOR_TOKEN_CLASSIFICATION],
+                                                          A.CAMEMBERT_FOR_TOKEN_CLASSIFICATION],
                                                       ),
-
 
         A.ALBERT_FOR_TOKEN_CLASSIFICATION: partial(NluComponent,
                                                    name=A.ALBERT_FOR_TOKEN_CLASSIFICATION,
@@ -2327,6 +2398,27 @@ class ComponentUniverse:
                                    has_storage_ref=True,
                                    is_storage_ref_producer=True,
                                    ),
+        A.INSTRUCTOR_SENTENCE_EMBEDDINGS: partial(NluComponent,
+                                                  name=A.INSTRUCTOR_SENTENCE_EMBEDDINGS,
+                                                  type=T.DOCUMENT_EMBEDDING,
+                                                  get_default_model=Instructor.get_default_model,
+                                                  get_pretrained_model=Instructor.get_pretrained_model,
+                                                  pdf_extractor_methods={'default': default_sentence_embedding_config,
+                                                                         'default_full': default_full_config, },
+                                                  pdf_col_name_substitutor=substitute_sent_embed_cols,
+                                                  output_level=L.INPUT_DEPENDENT_DOCUMENT_EMBEDDING,
+                                                  node=NLP_FEATURE_NODES.nodes[A.INSTRUCTOR_SENTENCE_EMBEDDINGS],
+                                                  description='Sentence-level embeddings using Instructor. Instructor, an instruction-finetuned text embedding model that can generate text embeddings tailored to any task (e.g., classification, retrieval, clustering, text evaluation, etc.) and domains (e.g., science, finance, etc.) by simply providing the task instruction, without any finetuning.',
+                                                  provider=ComponentBackends.open_source,
+                                                  license=Licenses.open_source,
+                                                  computation_context=ComputeContexts.spark,
+                                                  output_context=ComputeContexts.spark,
+                                                  jsl_anno_class_id=A.INSTRUCTOR_SENTENCE_EMBEDDINGS,
+                                                  jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                      A.INSTRUCTOR_SENTENCE_EMBEDDINGS],
+                                                  has_storage_ref=True,
+                                                  is_storage_ref_producer=True,
+                                                  ),
         A.BERT_SENTENCE_EMBEDDINGS: partial(NluComponent,
                                             name=A.BERT_SENTENCE_EMBEDDINGS,
                                             type=T.DOCUMENT_EMBEDDING,
@@ -2347,6 +2439,69 @@ class ComponentUniverse:
                                             has_storage_ref=True,
                                             is_storage_ref_producer=True,
                                             ),
+        A.E5_SENTENCE_EMBEDDINGS: partial(NluComponent,
+                                            name=A.E5_SENTENCE_EMBEDDINGS,
+                                            type=T.DOCUMENT_EMBEDDING,
+                                            get_default_model=E5.get_default_model,
+                                            get_pretrained_model=E5.get_pretrained_model,
+                                            pdf_extractor_methods={'default': default_sentence_embedding_config,
+                                                                   'default_full': default_full_config, },
+                                            pdf_col_name_substitutor=substitute_sent_embed_cols,
+                                            output_level=L.INPUT_DEPENDENT_DOCUMENT_EMBEDDING,
+                                            node=NLP_FEATURE_NODES.nodes[A.E5_SENTENCE_EMBEDDINGS],
+                                            description='Sentence-level embeddings using E5. E5, a weakly supervised text embedding model that can generate text embeddings tailored to any task (e.g., classification, retrieval, clustering, text evaluation, etc.).',
+                                            provider=ComponentBackends.open_source,
+                                            license=Licenses.open_source,
+                                            computation_context=ComputeContexts.spark,
+                                            output_context=ComputeContexts.spark,
+                                            jsl_anno_class_id=A.E5_SENTENCE_EMBEDDINGS,
+                                            jsl_anno_py_class=ACR.JSL_anno2_py_class[A.E5_SENTENCE_EMBEDDINGS],
+                                            has_storage_ref=True,
+                                            is_storage_ref_producer=True,
+                                            ),
+        A.BGE_SENTENCE_EMBEDDINGS: partial(NluComponent,
+                                          name=A.BGE_SENTENCE_EMBEDDINGS,
+                                          type=T.DOCUMENT_EMBEDDING,
+                                          get_default_model=BGE.get_default_model,
+                                          get_pretrained_model=BGE.get_pretrained_model,
+                                          pdf_extractor_methods={'default': default_sentence_embedding_config,
+                                                                 'default_full': default_full_config, },
+                                          pdf_col_name_substitutor=substitute_sent_embed_cols,
+                                          output_level=L.INPUT_DEPENDENT_DOCUMENT_EMBEDDING,
+                                          node=NLP_FEATURE_NODES.nodes[A.BGE_SENTENCE_EMBEDDINGS],
+                                          description='Sentence-level embeddings using BGE. E5, a weakly supervised text embedding model that can generate text embeddings tailored to any task (e.g., classification, retrieval, clustering, text evaluation, etc.).',
+                                          provider=ComponentBackends.open_source,
+                                          license=Licenses.open_source,
+                                          computation_context=ComputeContexts.spark,
+                                          output_context=ComputeContexts.spark,
+                                          jsl_anno_class_id=A.BGE_SENTENCE_EMBEDDINGS,
+                                          jsl_anno_py_class=ACR.JSL_anno2_py_class[A.BGE_SENTENCE_EMBEDDINGS],
+                                          has_storage_ref=True,
+                                          is_storage_ref_producer=True,
+                                          ),
+
+
+        A.OPENAI_EMBEDDINGS: partial(NluComponent,
+                                            name=A.OPENAI_EMBEDDINGS,
+                                            type=T.DOCUMENT_EMBEDDING,
+                                            get_default_model=OpenaiEmbeddings.get_default_model,
+                                            get_pretrained_model=OpenaiEmbeddings.get_pretrained_model,
+                                            pdf_extractor_methods={'default': default_sentence_embedding_config,
+                                                                   'default_full': default_full_config, },
+                                            pdf_col_name_substitutor=substitute_sent_embed_cols,
+                                            output_level=L.INPUT_DEPENDENT_DOCUMENT_EMBEDDING,
+                                            node=NLP_FEATURE_NODES.nodes[A.OPENAI_EMBEDDINGS],
+                                            description='',
+                                            provider=ComponentBackends.open_source,
+                                            license=Licenses.open_source,
+                                            computation_context=ComputeContexts.spark,
+                                            output_context=ComputeContexts.spark,
+                                            jsl_anno_class_id=A.OPENAI_EMBEDDINGS,
+                                            jsl_anno_py_class=ACR.JSL_anno2_py_class[A.OPENAI_EMBEDDINGS],
+                                            has_storage_ref=True,
+                                            is_storage_ref_producer=True,
+                                            ),
+
         A.BERT_FOR_TOKEN_CLASSIFICATION: partial(NluComponent,
                                                  name=A.BERT_FOR_TOKEN_CLASSIFICATION,
                                                  type=T.TRANSFORMER_TOKEN_CLASSIFIER,
@@ -2387,24 +2542,25 @@ class ComponentUniverse:
                                                         A.BERT_FOR_SEQUENCE_CLASSIFICATION],
                                                     ),
         A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION: partial(NluComponent,
-                                                    name=A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION,
-                                                    type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
-                                                    get_default_model=SeqCamembertClassifier.get_default_model,
-                                                    get_pretrained_model=SeqCamembertClassifier.get_pretrained_model,
-                                                    pdf_extractor_methods={'default': default_classifier_dl_config,
-                                                                           'default_full': default_full_config, },
-                                                    pdf_col_name_substitutor=substitute_seq_bert_classifier_cols,
-                                                    output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
-                                                    node=NLP_FEATURE_NODES.nodes[A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION],
-                                                    description='BertForSequenceClassification can load Bert Models with sequence classification/regression head on top (a linear layer on top of the pooled output) e.g. for multi-class document classification tasks.',
-                                                    provider=ComponentBackends.open_source,
-                                                    license=Licenses.open_source,
-                                                    computation_context=ComputeContexts.spark,
-                                                    output_context=ComputeContexts.spark,
-                                                    jsl_anno_class_id=A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION,
-                                                    jsl_anno_py_class=ACR.JSL_anno2_py_class[
-                                                        A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION],
-                                                    ),
+                                                         name=A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION,
+                                                         type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
+                                                         get_default_model=SeqCamembertClassifier.get_default_model,
+                                                         get_pretrained_model=SeqCamembertClassifier.get_pretrained_model,
+                                                         pdf_extractor_methods={'default': default_classifier_dl_config,
+                                                                                'default_full': default_full_config, },
+                                                         pdf_col_name_substitutor=substitute_seq_bert_classifier_cols,
+                                                         output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                                         node=NLP_FEATURE_NODES.nodes[
+                                                             A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION],
+                                                         description='BertForSequenceClassification can load Bert Models with sequence classification/regression head on top (a linear layer on top of the pooled output) e.g. for multi-class document classification tasks.',
+                                                         provider=ComponentBackends.open_source,
+                                                         license=Licenses.open_source,
+                                                         computation_context=ComputeContexts.spark,
+                                                         output_context=ComputeContexts.spark,
+                                                         jsl_anno_class_id=A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION,
+                                                         jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                             A.CAMEMBERT_FOR_SEQUENCE_CLASSIFICATION],
+                                                         ),
 
         A.DISTIL_BERT_EMBEDDINGS: partial(NluComponent,
                                           name=A.DISTIL_BERT_EMBEDDINGS,
@@ -2548,6 +2704,45 @@ class ComponentUniverse:
                                       jsl_anno_class_id=A.MARIAN_TRANSFORMER,
                                       jsl_anno_py_class=ACR.JSL_anno2_py_class[A.MARIAN_TRANSFORMER],
                                       ),
+        A.MPNET_SENTENCE_EMBEDDINGS: partial(NluComponent,
+                                            name=A.MPNET_SENTENCE_EMBEDDINGS,
+                                            type=T.DOCUMENT_EMBEDDING,
+                                            get_default_model=MPNetSentence.get_default_model,
+                                            get_pretrained_model=MPNetSentence.get_pretrained_model,
+                                            pdf_extractor_methods={'default': default_sentence_embedding_config,
+                                                                   'default_full': default_full_config, },
+                                            pdf_col_name_substitutor=substitute_sent_embed_cols,
+                                            output_level=L.INPUT_DEPENDENT_DOCUMENT_EMBEDDING,
+                                            node=NLP_FEATURE_NODES.nodes[A.MPNET_SENTENCE_EMBEDDINGS],
+                                            description='Sentence-level embeddings using BERT. BERT (Bidirectional Encoder Representations from Transformers) provides dense vector representations for natural language by using a deep, pre-trained neural network with the Transformer architecture.',
+                                            provider=ComponentBackends.open_source,
+                                            license=Licenses.open_source,
+                                            computation_context=ComputeContexts.spark,
+                                            output_context=ComputeContexts.spark,
+                                            jsl_anno_class_id=A.MPNET_SENTENCE_EMBEDDINGS,
+                                            jsl_anno_py_class=ACR.JSL_anno2_py_class[A.MPNET_SENTENCE_EMBEDDINGS],
+                                            has_storage_ref=True,
+                                            is_storage_ref_producer=True,
+                                            ),
+        A.MPNET_FOR_SEQUENCE_CLASSIFICATION: partial(NluComponent,
+                                            name=A.MPNET_FOR_SEQUENCE_CLASSIFICATION,
+                                            type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
+                                            get_default_model=SeqMPNetClassifier.get_default_model,
+                                            get_pretrained_model=SeqMPNetClassifier.get_pretrained_model,
+                                            pdf_extractor_methods={'default': default_classifier_dl_config,
+                                                                   'default_full': default_full_config, },
+                                            pdf_col_name_substitutor=substitute_seq_bert_classifier_cols,
+                                            output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                            node=NLP_FEATURE_NODES.nodes[A.MPNET_FOR_SEQUENCE_CLASSIFICATION],
+                                            description='MPNetForSequenceClassification can load MPNet Models with sequence classification/regression head on top (a linear layer on top of the pooled output) e.g. for multi-class document classification tasks.',
+                                            provider=ComponentBackends.open_source,
+                                            license=Licenses.open_source,
+                                            computation_context=ComputeContexts.spark,
+                                            output_context=ComputeContexts.spark,
+                                            jsl_anno_class_id=A.MPNET_FOR_SEQUENCE_CLASSIFICATION,
+                                            jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                            A.MPNET_FOR_SEQUENCE_CLASSIFICATION],
+                                                     ),
         A.ROBERTA_EMBEDDINGS: partial(NluComponent,
                                       name=A.ROBERTA_EMBEDDINGS,
                                       type=T.TOKEN_EMBEDDING,
@@ -2568,7 +2763,6 @@ class ComponentUniverse:
                                       has_storage_ref=True,
                                       is_storage_ref_producer=True,
                                       ),
-
         A.ROBERTA_FOR_TOKEN_CLASSIFICATION: partial(NluComponent,
                                                     name=A.ROBERTA_FOR_TOKEN_CLASSIFICATION,
                                                     type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
@@ -2591,23 +2785,22 @@ class ComponentUniverse:
         A.ROBERTA_SENTENCE_EMBEDDINGS: partial(NluComponent,
                                                name=A.ROBERTA_SENTENCE_EMBEDDINGS,
                                                type=T.DOCUMENT_EMBEDDING,
-                                               get_default_model=BertSentence.get_default_model,
-                                               get_pretrained_model=BertSentence.get_pretrained_model,
+                                               get_default_model=RobertaSentence.get_default_model,
+                                               get_pretrained_model=RobertaSentence.get_pretrained_model,
                                                pdf_extractor_methods={'default': default_sentence_embedding_config,
                                                                       'default_full': default_full_config, },
                                                pdf_col_name_substitutor=substitute_sent_embed_cols,
-                                               pipe_prediction_output_level=L.INPUT_DEPENDENT_DOCUMENT_EMBEDDING,
+                                               output_level=L.INPUT_DEPENDENT_DOCUMENT_EMBEDDING,
                                                node=NLP_FEATURE_NODES.nodes[A.ROBERTA_SENTENCE_EMBEDDINGS],
                                                description='Sentence-level embeddings using BERT. BERT (Bidirectional Encoder Representations from Transformers) provides dense vector representations for natural language by using a deep, pre-trained neural network with the Transformer architecture.',
                                                provider=ComponentBackends.open_source,
                                                license=Licenses.open_source,
                                                computation_context=ComputeContexts.spark,
                                                output_context=ComputeContexts.spark,
-                                               jsl_anno_class_id_id=A.ROBERTA_SENTENCE_EMBEDDINGS,
+                                               jsl_anno_class_id=A.ROBERTA_SENTENCE_EMBEDDINGS,
                                                jsl_anno_py_class=ACR.JSL_anno2_py_class[A.ROBERTA_SENTENCE_EMBEDDINGS],
-
                                                has_storage_ref=True,
-                                               is_is_storage_ref_producer=True,
+                                               is_storage_ref_producer=True,
                                                ),
         A.T5_TRANSFORMER: partial(NluComponent,
                                   # TODO  task based construction, i.e. get_preconfigured_model
@@ -2628,6 +2821,85 @@ class ComponentUniverse:
                                   jsl_anno_class_id=A.T5_TRANSFORMER,
                                   jsl_anno_py_class=ACR.JSL_anno2_py_class[A.T5_TRANSFORMER],
                                   ),
+
+        H_A.MEDICAL_SUMMARIZER: partial(NluComponent,
+                                        name=H_A.MEDICAL_SUMMARIZER,
+                                        type=T.DOCUMENT_CLASSIFIER,
+                                        get_default_model=MedSummarizer.get_default_model,
+                                        get_pretrained_model=MedSummarizer.get_pretrained_model,
+                                        pdf_extractor_methods={'default': default_T5_config,
+                                                               'default_full': default_full_config, },
+                                        pdf_col_name_substitutor=substitute_summarizer_cols,
+                                        output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                        node=NLP_HC_FEATURE_NODES.nodes[H_A.MEDICAL_SUMMARIZER],
+                                        description='Medical summarizer',
+                                        provider=ComponentBackends.open_source,
+                                        license=Licenses.open_source,
+                                        computation_context=ComputeContexts.spark,
+                                        output_context=ComputeContexts.spark,
+                                        jsl_anno_class_id=H_A.MEDICAL_SUMMARIZER,
+                                        jsl_anno_py_class=ACR.JSL_anno_HC_ref_2_py_class[H_A.MEDICAL_SUMMARIZER],
+                                        ),
+
+        A.BART_TRANSFORMER: partial(NluComponent,
+                                    name=A.BART_TRANSFORMER,
+                                    type=T.DOCUMENT_CLASSIFIER,
+                                    get_default_model=SparkNLPBartTransformer.get_default_model,
+                                    get_pretrained_model=SparkNLPBartTransformer.get_pretrained_model,
+                                    pdf_extractor_methods={'default': default_gpt2_config,
+                                                           'default_full': default_full_config, },
+                                    pdf_col_name_substitutor=substitute_gpt2_cols,
+                                    output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                    node=NLP_FEATURE_NODES.nodes[A.BART_TRANSFORMER],
+                                    description='Bart Transformer',
+                                    provider=ComponentBackends.open_source,
+                                    license=Licenses.open_source,
+                                    computation_context=ComputeContexts.spark,
+                                    output_context=ComputeContexts.spark,
+                                    jsl_anno_class_id=A.BART_TRANSFORMER,
+                                    jsl_anno_py_class=ACR.JSL_anno2_py_class[A.BART_TRANSFORMER],
+                                    ),
+
+        A.M2M100_TRANSFORMER: partial(NluComponent,
+                                    name=A.M2M100_TRANSFORMER,
+                                    type=T.DOCUMENT_CLASSIFIER,
+                                    get_default_model=M2M100.get_default_model,
+                                    get_pretrained_model=M2M100.get_pretrained_model,
+                                    pdf_extractor_methods={'default': default_gpt2_config,
+                                                           'default_full': default_full_config, },
+                                    pdf_col_name_substitutor=substitute_gpt2_cols,
+                                    output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                    node=NLP_FEATURE_NODES.nodes[A.M2M100_TRANSFORMER],
+                                    description='Bart Transformer',
+                                    provider=ComponentBackends.open_source,
+                                    license=Licenses.open_source,
+                                    computation_context=ComputeContexts.spark,
+                                    output_context=ComputeContexts.spark,
+                                    jsl_anno_class_id=A.M2M100_TRANSFORMER,
+                                    jsl_anno_py_class=ACR.JSL_anno2_py_class[A.M2M100_TRANSFORMER],
+                                    ),
+
+
+        H_A.MEDICAL_TEXT_GENERATOR: partial(NluComponent,
+                                            name=H_A.MEDICAL_TEXT_GENERATOR,
+                                            type=T.DOCUMENT_CLASSIFIER,
+                                            get_default_model=MedTextGenerator.get_default_model,
+                                            get_pretrained_model=MedTextGenerator.get_pretrained_model,
+                                            pdf_extractor_methods={'default': default_gpt2_config,
+                                                                   'default_full': default_full_config, },
+                                            pdf_col_name_substitutor=substitute_gpt2_cols,
+                                            output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                            node=NLP_HC_FEATURE_NODES.nodes[H_A.MEDICAL_TEXT_GENERATOR],
+                                            description='Medical Text Generator',
+                                            provider=ComponentBackends.open_source,
+                                            license=Licenses.open_source,
+                                            computation_context=ComputeContexts.spark,
+                                            output_context=ComputeContexts.spark,
+                                            jsl_anno_class_id=H_A.MEDICAL_TEXT_GENERATOR,
+                                            jsl_anno_py_class=ACR.JSL_anno_HC_ref_2_py_class[
+                                                H_A.MEDICAL_TEXT_GENERATOR],
+                                            ),
+
         A.UNIVERSAL_SENTENCE_ENCODER: partial(NluComponent,
                                               name=A.UNIVERSAL_SENTENCE_ENCODER,
                                               type=T.DOCUMENT_EMBEDDING,
@@ -2773,6 +3045,7 @@ class ComponentUniverse:
                                                            jsl_anno_py_class=ACR.JSL_anno2_py_class[
                                                                A.XLM_ROBERTA_FOR_SEQUENCE_CLASSIFICATION],
                                                            ),
+
         A.ROBERTA_FOR_SEQUENCE_CLASSIFICATION: partial(NluComponent,
                                                        name=A.ROBERTA_FOR_SEQUENCE_CLASSIFICATION,
                                                        type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
@@ -2855,7 +3128,97 @@ class ComponentUniverse:
                                                      jsl_anno_py_class=ACR.JSL_anno2_py_class[
                                                          A.XLNET_FOR_SEQUENCE_CLASSIFICATION],
                                                      ),
+        A.DISTIL_BERT_FOR_ZERO_SHOT_CLASSIFICATION: partial(NluComponent,
+                                                            name=A.DISTIL_BERT_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                            type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
+                                                            get_default_model=DistilBertZeroShotClassifier.get_default_model,
+                                                            get_pretrained_model=DistilBertZeroShotClassifier.get_pretrained_model,
+                                                            pdf_extractor_methods={
+                                                                'default': default_seq_classifier_config,
+                                                                'default_full': default_full_config, },
+                                                            pdf_col_name_substitutor=substitute_seq_bert_classifier_cols,
+                                                            output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                                            node=NLP_FEATURE_NODES.nodes[
+                                                                A.DISTIL_BERT_FOR_ZERO_SHOT_CLASSIFICATION],
+                                                            description='Distil Bert Zero Shot Classifier.',
+                                                            provider=ComponentBackends.open_source,
+                                                            license=Licenses.open_source,
+                                                            computation_context=ComputeContexts.spark,
+                                                            output_context=ComputeContexts.spark,
+                                                            jsl_anno_class_id=A.DISTIL_BERT_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                            jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                                A.DISTIL_BERT_FOR_ZERO_SHOT_CLASSIFICATION],
+                                                            ),
 
+
+        A.DEBERTA_FOR_ZERO_SHOT_CLASSIFICATION: partial(NluComponent,
+                                                            name=A.DEBERTA_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                            type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
+                                                            get_default_model=DeBertaZeroShotClassifier.get_default_model,
+                                                            get_pretrained_model=DeBertaZeroShotClassifier.get_pretrained_model,
+                                                            pdf_extractor_methods={
+                                                                'default': default_seq_classifier_config,
+                                                                'default_full': default_full_config, },
+                                                            pdf_col_name_substitutor=substitute_seq_bert_classifier_cols,
+                                                            output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                                            node=NLP_FEATURE_NODES.nodes[
+                                                                A.DEBERTA_FOR_ZERO_SHOT_CLASSIFICATION],
+                                                            description='DeBerta Zero Shot Classifier.',
+                                                            provider=ComponentBackends.open_source,
+                                                            license=Licenses.open_source,
+                                                            computation_context=ComputeContexts.spark,
+                                                            output_context=ComputeContexts.spark,
+                                                            jsl_anno_class_id=A.DEBERTA_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                            jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                                A.DEBERTA_FOR_ZERO_SHOT_CLASSIFICATION],
+                                                            ),
+
+
+
+
+
+
+
+        A.BERT_FOR_ZERO_SHOT_CLASSIFICATION: partial(NluComponent,
+                                                     name=A.BERT_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                     type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
+                                                     get_default_model=BertZeroShotClassifier.get_default_model,
+                                                     get_pretrained_model=BertZeroShotClassifier.get_pretrained_model,
+                                                     pdf_extractor_methods={'default': default_seq_classifier_config,
+                                                                            'default_full': default_full_config, },
+                                                     pdf_col_name_substitutor=substitute_seq_bert_classifier_cols,
+                                                     output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                                     node=NLP_FEATURE_NODES.nodes[
+                                                         A.BERT_FOR_ZERO_SHOT_CLASSIFICATION],
+                                                     description='Bert Zero Shot Classifier.',
+                                                     provider=ComponentBackends.open_source,
+                                                     license=Licenses.open_source,
+                                                     computation_context=ComputeContexts.spark,
+                                                     output_context=ComputeContexts.spark,
+                                                     jsl_anno_class_id=A.BERT_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                     jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                         A.BERT_FOR_ZERO_SHOT_CLASSIFICATION],
+                                                     ),
+        A.BART_FOR_ZERO_SHOT_CLASSIFICATION: partial(NluComponent,
+                                                     name=A.BART_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                     type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
+                                                     get_default_model=BartZeroShotClassifier.get_default_model,
+                                                     get_pretrained_model=BartZeroShotClassifier.get_pretrained_model,
+                                                     pdf_extractor_methods={'default': default_seq_classifier_config,
+                                                                            'default_full': default_full_config, },
+                                                     pdf_col_name_substitutor=substitute_seq_bert_classifier_cols,
+                                                     output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                                     node=NLP_FEATURE_NODES.nodes[
+                                                         A.BART_FOR_ZERO_SHOT_CLASSIFICATION],
+                                                     description='Bart Zero Shot Classifier.',
+                                                     provider=ComponentBackends.open_source,
+                                                     license=Licenses.open_source,
+                                                     computation_context=ComputeContexts.spark,
+                                                     output_context=ComputeContexts.spark,
+                                                     jsl_anno_class_id=A.BART_FOR_ZERO_SHOT_CLASSIFICATION,
+                                                     jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                         A.BART_FOR_ZERO_SHOT_CLASSIFICATION],
+                                                     ),
         A.GPT2: partial(NluComponent,
                         name=A.GPT2,
                         type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
@@ -2872,6 +3235,24 @@ class ComponentUniverse:
                         output_context=ComputeContexts.spark,
                         jsl_anno_class_id=A.GPT2,
                         jsl_anno_py_class=ACR.JSL_anno2_py_class[A.GPT2],
+                        ),
+
+        A.OPENAI_COMPLETION: partial(NluComponent,
+                        name=A.OPENAI_COMPLETION,
+                        type=T.TRANSFORMER_SEQUENCE_CLASSIFIER,
+                        get_default_model=OpenaiCompletion.get_default_model,
+                        get_pretrained_model=OpenaiCompletion.get_pretrained_model,
+                        pdf_extractor_methods={'default': default_gpt2_config, 'default_full': default_full_config, },
+                        pdf_col_name_substitutor=substitute_gpt2_cols,  # TIODO TESt
+                        output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                        node=NLP_FEATURE_NODES.nodes[A.OPENAI_COMPLETION],
+                        description='',
+                        provider=ComponentBackends.open_source,
+                        license=Licenses.open_source,
+                        computation_context=ComputeContexts.spark,
+                        output_context=ComputeContexts.spark,
+                        jsl_anno_class_id=A.OPENAI_COMPLETION,
+                        jsl_anno_py_class=ACR.JSL_anno2_py_class[A.OPENAI_COMPLETION],
                         ),
 
         A.WORD_2_VEC: partial(NluComponent,  # TOOD
@@ -2941,25 +3322,25 @@ class ComponentUniverse:
                                                        ),
 
         A.CAMEMBERT_FOR_QUESTION_ANSWERING: partial(NluComponent,
-                                                 name=A.CAMEMBERT_FOR_QUESTION_ANSWERING,
-                                                 jsl_anno_class_id=A.CAMEMBERT_FOR_QUESTION_ANSWERING,
-                                                 jsl_anno_py_class=ACR.JSL_anno2_py_class[
-                                                     A.CAMEMBERT_FOR_QUESTION_ANSWERING],
-                                                 node=NLP_FEATURE_NODES.nodes[A.CAMEMBERT_FOR_QUESTION_ANSWERING],
-                                                 get_default_model=SpanCamemBert.get_default_model,
-                                                 get_pretrained_model=SpanCamemBert.get_pretrained_model,
-                                                 type=T.QUESTION_SPAN_CLASSIFIER,
-                                                 pdf_extractor_methods={
-                                                     'default': default_span_classifier_config,
-                                                     'default_full': default_full_span_classifier_config, },
-                                                 pdf_col_name_substitutor=substitute_span_classifier_cols,
-                                                 output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
-                                                 description='TODO',
-                                                 provider=ComponentBackends.open_source,
-                                                 license=Licenses.open_source,
-                                                 computation_context=ComputeContexts.spark,
-                                                 output_context=ComputeContexts.spark,
-                                                 ),
+                                                    name=A.CAMEMBERT_FOR_QUESTION_ANSWERING,
+                                                    jsl_anno_class_id=A.CAMEMBERT_FOR_QUESTION_ANSWERING,
+                                                    jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                        A.CAMEMBERT_FOR_QUESTION_ANSWERING],
+                                                    node=NLP_FEATURE_NODES.nodes[A.CAMEMBERT_FOR_QUESTION_ANSWERING],
+                                                    get_default_model=SpanCamemBert.get_default_model,
+                                                    get_pretrained_model=SpanCamemBert.get_pretrained_model,
+                                                    type=T.QUESTION_SPAN_CLASSIFIER,
+                                                    pdf_extractor_methods={
+                                                        'default': default_span_classifier_config,
+                                                        'default_full': default_full_span_classifier_config, },
+                                                    pdf_col_name_substitutor=substitute_span_classifier_cols,
+                                                    output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                                    description='TODO',
+                                                    provider=ComponentBackends.open_source,
+                                                    license=Licenses.open_source,
+                                                    computation_context=ComputeContexts.spark,
+                                                    output_context=ComputeContexts.spark,
+                                                    ),
 
         A.BERT_FOR_QUESTION_ANSWERING: partial(NluComponent,
                                                name=A.BERT_FOR_QUESTION_ANSWERING,
@@ -2968,6 +3349,25 @@ class ComponentUniverse:
                                                node=NLP_FEATURE_NODES.nodes[A.BERT_FOR_QUESTION_ANSWERING],
                                                get_default_model=SpanBertClassifier.get_default_model,
                                                get_pretrained_model=SpanBertClassifier.get_pretrained_model,
+                                               type=T.QUESTION_SPAN_CLASSIFIER,
+                                               pdf_extractor_methods={
+                                                   'default': default_span_classifier_config,
+                                                   'default_full': default_full_span_classifier_config, },
+                                               pdf_col_name_substitutor=substitute_span_classifier_cols,
+                                               output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                               description='TODO',
+                                               provider=ComponentBackends.open_source,
+                                               license=Licenses.open_source,
+                                               computation_context=ComputeContexts.spark,
+                                               output_context=ComputeContexts.spark,
+                                               ),
+        A.ALBERT_FOR_QUESTION_ANSWERING: partial(NluComponent,
+                                               name=A.ALBERT_FOR_QUESTION_ANSWERING,
+                                               jsl_anno_class_id=A.ALBERT_FOR_QUESTION_ANSWERING,
+                                               jsl_anno_py_class=ACR.JSL_anno2_py_class[A.ALBERT_FOR_QUESTION_ANSWERING],
+                                               node=NLP_FEATURE_NODES.nodes[A.ALBERT_FOR_QUESTION_ANSWERING],
+                                               get_default_model=SpanAlbertClassifier.get_default_model,
+                                               get_pretrained_model=SpanAlbertClassifier.get_pretrained_model,
                                                type=T.QUESTION_SPAN_CLASSIFIER,
                                                pdf_extractor_methods={
                                                    'default': default_span_classifier_config,
@@ -3087,6 +3487,27 @@ class ComponentUniverse:
                                                       computation_context=ComputeContexts.spark,
                                                       output_context=ComputeContexts.spark,
                                                       ),
+        H_A.MEDICAL_QUESTION_ANSWERING: partial(NluComponent,
+                                                      name=H_A.MEDICAL_QUESTION_ANSWERING,
+                                                      jsl_anno_class_id= H_A.MEDICAL_QUESTION_ANSWERING,
+                                                      jsl_anno_py_class= ACR.JSL_anno_HC_ref_2_py_class[
+                                                          H_A.MEDICAL_QUESTION_ANSWERING],
+                                                      node= NLP_HC_FEATURE_NODES.nodes[
+                                                          H_A.MEDICAL_QUESTION_ANSWERING],
+                                                      get_default_model= SpanMedical.get_default_model,
+                                                      get_pretrained_model= SpanMedical.get_pretrained_model,
+                                                      type= T.QUESTION_SPAN_CLASSIFIER,
+                                                      pdf_extractor_methods={
+                                                          'default': default_span_classifier_config,
+                                                          'default_full': default_full_span_classifier_config, },
+                                                      pdf_col_name_substitutor=substitute_hc_span_classifier_cols,
+                                                      output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
+                                                      description='TODO',
+                                                      provider=ComponentBackends.hc,
+                                                      license=Licenses.hc,
+                                                      computation_context=ComputeContexts.spark,
+                                                      output_context=ComputeContexts.spark,
+                                                      ),
 
         A.MULTI_DOCUMENT_ASSEMBLER: partial(NluComponent,
                                             name=A.MULTI_DOCUMENT_ASSEMBLER,
@@ -3109,12 +3530,12 @@ class ComponentUniverse:
                                             ),
 
         A.VIT_IMAGE_CLASSIFICATION: partial(NluComponent,
-                                            name=A.VIT_IMAGE_CLASSIFICATION ,
+                                            name=A.VIT_IMAGE_CLASSIFICATION,
                                             type=T.IMAGE_CLASSIFICATION,
                                             get_default_model=VitImageClassifier.get_default_model,
                                             get_pretrained_model=VitImageClassifier.get_pretrained_model,
                                             pdf_extractor_methods={'default': default_document_config,
-                                                                   'default_full': default_full_config },
+                                                                   'default_full': default_full_config},
                                             pdf_col_name_substitutor=substitute_recognized_text_cols,
                                             output_level=L.DOCUMENT,
                                             node=NLP_FEATURE_NODES.nodes[
@@ -3128,53 +3549,101 @@ class ComponentUniverse:
                                             jsl_anno_class_id=A.VIT_IMAGE_CLASSIFICATION,
                                             jsl_anno_py_class=ACR.JSL_anno2_py_class[
                                                 A.VIT_IMAGE_CLASSIFICATION],
+                                            requires_image_format=True,
+                                            is_visual_annotator=True,
                                             ),
 
+        A.CONVNEXT_IMAGE_CLASSIFICATIONFITTED: partial(NluComponent,
+                                                       name=A.CONVNEXT_IMAGE_CLASSIFICATIONFITTED,
+                                                       type=T.IMAGE_CLASSIFICATION,
+                                                       get_default_model=ConvNextImageClassifier.get_default_model,
+                                                       get_pretrained_model=ConvNextImageClassifier.get_pretrained_model,
+                                                       pdf_extractor_methods={'default': default_document_config,
+                                                                              'default_full': default_full_config},
+                                                       pdf_col_name_substitutor=substitute_recognized_text_cols,
+                                                       output_level=L.DOCUMENT,
+                                                       node=NLP_FEATURE_NODES.nodes[
+                                                           A.CONVNEXT_IMAGE_CLASSIFICATION],
+                                                       description='TODO',
+                                                       provider=ComponentBackends.open_source,
+
+                                                       license=Licenses.open_source,
+                                                       computation_context=ComputeContexts.spark,
+                                                       output_context=ComputeContexts.spark,
+                                                       jsl_anno_class_id=A.CONVNEXT_IMAGE_CLASSIFICATION,
+                                                       jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                           A.CONVNEXT_IMAGE_CLASSIFICATIONFITTED],
+                                                       requires_image_format=True,
+                                                       is_visual_annotator=True,
+
+                                                       ),
+        A.CONVNEXT_IMAGE_CLASSIFICATION: partial(NluComponent,
+                                                 name=A.CONVNEXT_IMAGE_CLASSIFICATION,
+                                                 type=T.IMAGE_CLASSIFICATION,
+                                                 get_default_model=ConvNextImageClassifier.get_default_model,
+                                                 get_pretrained_model=ConvNextImageClassifier.get_pretrained_model,
+                                                 pdf_extractor_methods={'default': default_document_config,
+                                                                        'default_full': default_full_config},
+                                                 pdf_col_name_substitutor=substitute_recognized_text_cols,
+                                                 output_level=L.DOCUMENT,
+                                                 node=NLP_FEATURE_NODES.nodes[
+                                                     A.CONVNEXT_IMAGE_CLASSIFICATION],
+                                                 description='TODO',
+                                                 provider=ComponentBackends.open_source,
+
+                                                 license=Licenses.open_source,
+                                                 computation_context=ComputeContexts.spark,
+                                                 output_context=ComputeContexts.spark,
+                                                 jsl_anno_class_id=A.CONVNEXT_IMAGE_CLASSIFICATION,
+                                                 jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                     A.CONVNEXT_IMAGE_CLASSIFICATION],
+                                                 requires_image_format=True,
+                                                 is_visual_annotator=True,
+
+                                                 ),
 
         A.SWIN_IMAGE_CLASSIFICATION: partial(NluComponent,
-                                            name=A.SWIN_IMAGE_CLASSIFICATION ,
-                                            type=T.IMAGE_CLASSIFICATION,
-                                            get_default_model=SwinImageClassifier.get_default_model,
-                                            get_pretrained_model=SwinImageClassifier.get_pretrained_model,
-                                            pdf_extractor_methods={'default': default_document_config,
-                                                                   'default_full': default_full_config },
-                                            pdf_col_name_substitutor=substitute_recognized_text_cols,
-                                            output_level=L.DOCUMENT,
-                                            node=NLP_FEATURE_NODES.nodes[
-                                                A.SWIN_IMAGE_CLASSIFICATION],
-                                            description='TODO',
-                                            provider=ComponentBackends.open_source,
+                                             name=A.SWIN_IMAGE_CLASSIFICATION,
+                                             type=T.IMAGE_CLASSIFICATION,
+                                             get_default_model=SwinImageClassifier.get_default_model,
+                                             get_pretrained_model=SwinImageClassifier.get_pretrained_model,
+                                             pdf_extractor_methods={'default': default_document_config,
+                                                                    'default_full': default_full_config},
+                                             pdf_col_name_substitutor=substitute_recognized_text_cols,
+                                             output_level=L.DOCUMENT,
+                                             node=NLP_FEATURE_NODES.nodes[
+                                                 A.SWIN_IMAGE_CLASSIFICATION],
+                                             description='TODO',
+                                             provider=ComponentBackends.open_source,
 
-                                            license=Licenses.open_source,
-                                            computation_context=ComputeContexts.spark,
-                                            output_context=ComputeContexts.spark,
-                                            jsl_anno_class_id=A.SWIN_IMAGE_CLASSIFICATION,
-                                            jsl_anno_py_class=ACR.JSL_anno2_py_class[
-                                                A.SWIN_IMAGE_CLASSIFICATION],
-                                            ),
-
-
+                                             license=Licenses.open_source,
+                                             computation_context=ComputeContexts.spark,
+                                             output_context=ComputeContexts.spark,
+                                             jsl_anno_class_id=A.SWIN_IMAGE_CLASSIFICATION,
+                                             jsl_anno_py_class=ACR.JSL_anno2_py_class[
+                                                 A.SWIN_IMAGE_CLASSIFICATION],
+                                             requires_image_format=True,
+                                             is_visual_annotator=True,
+                                             ),
 
         A.IMAGE_ASSEMBLER: partial(NluComponent,
-                                      name=A.IMAGE_ASSEMBLER,
-                                      type=T.HELPER_ANNO,
-                                      get_default_model=SparkNlpImageAssembler.get_default_model,
-                                      pdf_extractor_methods={'default': default_image_assembler_config,
-                                                          'default_full': default_full_config },
-                                      pdf_col_name_substitutor=substitute_img_assembler_cols,
-                                      output_level=L.DOCUMENT,
-                                      node=NLP_FEATURE_NODES.nodes[A.IMAGE_ASSEMBLER],
-                                      description='todo',
-                                      provider=ComponentBackends.open_source,
-                                      license=Licenses.open_source,
-                                      computation_context=ComputeContexts.spark,
-                                      output_context=ComputeContexts.spark,
-                                      jsl_anno_class_id=A.IMAGE_ASSEMBLER,
-                                      jsl_anno_py_class=ACR.JSL_anno2_py_class[A.IMAGE_ASSEMBLER],
-                                      applicable_file_types=['JPEG', 'PNG', 'BMP', 'WBMP', 'GIF', 'JPG', 'TIFF']
-                                      ),
-
-
+                                   name=A.IMAGE_ASSEMBLER,
+                                   type=T.HELPER_ANNO,
+                                   get_default_model=SparkNlpImageAssembler.get_default_model,
+                                   pdf_extractor_methods={'default': default_image_assembler_config,
+                                                          'default_full': default_full_config},
+                                   pdf_col_name_substitutor=substitute_img_assembler_cols,
+                                   output_level=L.DOCUMENT,
+                                   node=NLP_FEATURE_NODES.nodes[A.IMAGE_ASSEMBLER],
+                                   description='todo',
+                                   provider=ComponentBackends.open_source,
+                                   license=Licenses.open_source,
+                                   computation_context=ComputeContexts.spark,
+                                   output_context=ComputeContexts.spark,
+                                   jsl_anno_class_id=A.IMAGE_ASSEMBLER,
+                                   jsl_anno_py_class=ACR.JSL_anno2_py_class[A.IMAGE_ASSEMBLER],
+                                   applicable_file_types=['JPEG', 'PNG', 'BMP', 'WBMP', 'GIF', 'JPG', 'TIFF']
+                                   ),
 
         ######### HEALTHCARE ##############
 
@@ -3331,7 +3800,7 @@ class ComponentUniverse:
                                        pdf_extractor_methods={'default': default_de_identification_config,
                                                               'default_full': default_full_config, },
                                        pdf_col_name_substitutor=substitute_de_identification_cols,
-                                       output_level=L.DOCUMENT,
+                                       output_level=L.INPUT_DEPENDENT_DOCUMENT_CLASSIFIER,
                                        node=NLP_HC_FEATURE_NODES.nodes[H_A.DE_IDENTIFICATION],
                                        description='De-Identify named entity according to various Healthcare Data Protection standards',
                                        provider=ComponentBackends.hc,
@@ -3598,12 +4067,6 @@ class ComponentUniverse:
                                                    is_storage_ref_consumer=True
                                                    ),
 
-
-
-
-
-
-
         H_A.ZERO_SHOT_RELATION_EXTRACTION: partial(NluComponent,
                                                    name=H_A.ZERO_SHOT_RELATION_EXTRACTION,
                                                    type=T.RELATION_CLASSIFIER,
@@ -3627,24 +4090,23 @@ class ComponentUniverse:
                                                    trained_mirror_anno=H_A.RELATION_EXTRACTION,
                                                    ),
         H_A.ZERO_SHOT_NER: partial(NluComponent,
-                                 name=H_A.ZERO_SHOT_NER,
-                                 type=T.CHUNK_CLASSIFIER,
-                                 get_default_model=ZeroShotNer.get_default_model,
-                                  get_pretrained_model=ZeroShotNer.get_pretrained_model,
-                                 pdf_extractor_methods={'default': default_ner_config,
-                                                        'default_full': default_full_config, },
-                                 pdf_col_name_substitutor=substitute_ner_dl_cols,
-                                 output_level=L.TOKEN,
-                                 node=NLP_HC_FEATURE_NODES.nodes[H_A.ZERO_SHOT_NER],
-                                 description='Deep Learning based Zero SHot Named Entity Recognizer (NER)',
-                                 provider=ComponentBackends.hc,
-                                 license=Licenses.hc,
-                                 computation_context=ComputeContexts.spark,
-                                 output_context=ComputeContexts.spark,
-                                 jsl_anno_class_id=H_A.ZERO_SHOT_NER,
-                                 jsl_anno_py_class=ACR.JSL_anno_HC_ref_2_py_class[H_A.ZERO_SHOT_NER],
-                                 ),
-
+                                   name=H_A.ZERO_SHOT_NER,
+                                   type=T.CHUNK_CLASSIFIER,
+                                   get_default_model=ZeroShotNer.get_default_model,
+                                   get_pretrained_model=ZeroShotNer.get_pretrained_model,
+                                   pdf_extractor_methods={'default': default_ner_config,
+                                                          'default_full': default_full_config, },
+                                   pdf_col_name_substitutor=substitute_ner_dl_cols,
+                                   output_level=L.TOKEN,
+                                   node=NLP_HC_FEATURE_NODES.nodes[H_A.ZERO_SHOT_NER],
+                                   description='Deep Learning based Zero SHot Named Entity Recognizer (NER)',
+                                   provider=ComponentBackends.hc,
+                                   license=Licenses.hc,
+                                   computation_context=ComputeContexts.spark,
+                                   output_context=ComputeContexts.spark,
+                                   jsl_anno_class_id=H_A.ZERO_SHOT_NER,
+                                   jsl_anno_py_class=ACR.JSL_anno_HC_ref_2_py_class[H_A.ZERO_SHOT_NER],
+                                   ),
 
         H_A.RELATION_EXTRACTION_DL: partial(NluComponent,
                                             name=H_A.RELATION_EXTRACTION_DL,
@@ -3672,6 +4134,7 @@ class ComponentUniverse:
                                             ),
 
         H_A.CHUNK_MAPPER_MODEL: partial(NluComponent,
+                                        prefer_light_pipe=True,
                                         name=H_A.CHUNK_MAPPER_MODEL,
                                         type=T.CHUNK_MAPPER,
                                         get_default_model=ChunkMapper.get_default_model,
@@ -3927,6 +4390,43 @@ class ComponentUniverse:
 
                                     ),
 
+        O_A.PDF2IMAGE: partial(NluComponent,
+                                    name=O_A.PDF2IMAGE,
+                                    type=T.TABLE_RECOGNIZER,
+                                    get_default_model=PDF2Image.get_default_model,
+                                    pdf_extractor_methods={'default': default_pdf_to_image_config},  # TODO EXtractor
+                                    pdf_col_name_substitutor=substitute_recognized_text_cols,  # TODO substitor
+                                    output_level=L.IMAGE,
+                                    node=OCR_FEATURE_NODES.nodes[O_A.PDF2IMAGE],
+                                    description='Extract Tables from PDFs with have highlightable text',
+                                    provider=ComponentBackends.ocr,
+                                    license=Licenses.ocr,
+                                    computation_context=ComputeContexts.spark,
+                                    output_context=ComputeContexts.spark,
+                                    jsl_anno_class_id=O_A.PDF2IMAGE,
+                                    jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[O_A.PDF2IMAGE],
+                                    applicable_file_types=['JPEG', 'PNG', 'PDF']
+                                    ),
+
+        O_A.IMAGE2PDF: partial(NluComponent,
+                               name=O_A.IMAGE2PDF,
+                               type=T.TABLE_RECOGNIZER,
+                               get_default_model=Image2PDF.get_default_model,
+                               pdf_extractor_methods={'default': default_pdf_to_image_config},  # TODO EXtractor
+                               pdf_col_name_substitutor=substitute_recognized_text_cols,  # TODO substitor
+                               output_level=L.IMAGE,
+                               node=OCR_FEATURE_NODES.nodes[O_A.IMAGE2PDF],
+                               description='Extract Tables from PDFs with have highlightable text',
+                               provider=ComponentBackends.ocr,
+                               license=Licenses.ocr,
+                               computation_context=ComputeContexts.spark,
+                               output_context=ComputeContexts.spark,
+                               jsl_anno_class_id=O_A.IMAGE2PDF,
+                               jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[O_A.IMAGE2PDF],
+                               applicable_file_types=['JPEG', 'PNG', 'PDF']
+
+                               ),
+
         O_A.PPT2TEXT_TABLE: partial(NluComponent,
                                     name=O_A.PPT2TEXT_TABLE,
                                     type=T.TABLE_RECOGNIZER,
@@ -3963,29 +4463,123 @@ class ComponentUniverse:
                                     applicable_file_types=['DOCX', 'DOC']
                                     ),
 
-        # O_A.VISUAL_DOCUMENT_CLASSIFIER: partial(NluComponent,
-        #                                         name=O_A.VISUAL_DOCUMENT_CLASSIFIER,
-        #                                         type=T.PDF_BUILDER,
-        #                                         get_default_model=VisualDocClassifier.get_default_model,
-        #                                         get_pretrained_model=VisualDocClassifier.get_pretrained_model,
-        #
-        #                                         pdf_extractor_methods={'default': default_visual_classifier_config},
-        #                                         # TODO EXtractor
-        #                                         pdf_col_name_substitutor=substitute_recognized_text_cols,
-        #                                         # TODO substitor
-        #                                         output_level=L.DOCUMENT,
-        #                                         node=OCR_FEATURE_NODES.nodes[O_A.VISUAL_DOCUMENT_CLASSIFIER],
-        #                                         description='Convert text to PDF file',
-        #                                         provider=ComponentBackends.ocr,
-        #                                         license=Licenses.ocr,
-        #                                         computation_context=ComputeContexts.spark,
-        #                                         output_context=ComputeContexts.spark,
-        #                                         jsl_anno_class_id=O_A.VISUAL_DOCUMENT_CLASSIFIER,
-        #                                         jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[
-        #                                             O_A.VISUAL_DOCUMENT_CLASSIFIER],
-        #                                         applicable_file_types=['JPG', 'JPEG']
-        #                                         ),
-        #
+        O_A.IMAGE_TABLE_CELL_DETECTOR: partial(NluComponent,
+                                               name=O_A.IMAGE_TABLE_CELL_DETECTOR,
+                                               type=T.TEXT_RECOGNIZER,
+                                               get_default_model= ImageTableCellDetector.get_default_model,
+                                               pdf_extractor_methods={'default': default_text_recognizer_config},
+                                               pdf_col_name_substitutor=substitute_recognized_text_cols,  # TODO substitor
+                                               output_level=L.DOCUMENT,  # TODO new output level IMG? Or treat as DOC?
+                                               node=OCR_FEATURE_NODES.nodes[O_A.IMAGE_TABLE_CELL_DETECTOR],
+                                               description='Recognize text from image files',
+                                               provider=ComponentBackends.ocr,
+                                               license=Licenses.ocr,
+                                               computation_context=ComputeContexts.spark,
+                                               output_context=ComputeContexts.spark,
+                                               jsl_anno_class_id=O_A.IMAGE_TABLE_CELL_DETECTOR,
+                                               jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[O_A.IMAGE_TABLE_CELL_DETECTOR],
+                                               applicable_file_types=['JPEG', 'PNG', 'BMP', 'WBMP', 'GIF', 'JPG', '.TIFF'],
+                                               is_light_pipe_incompatible=True
+                                               ),
+
+        O_A.IMAGE_TABLE_CELL2TEXT_TABLE: partial(NluComponent,
+                                                 name=O_A.IMAGE_TABLE_CELL2TEXT_TABLE,
+                                                 type=T.TEXT_RECOGNIZER,
+                                                 get_default_model=ImageTable2Cell2TextTable.get_default_model,
+                                                 pdf_extractor_methods={'default': default_text_recognizer_config},
+                                                 pdf_col_name_substitutor=substitute_recognized_text_cols,  # TODO substitor
+                                                 output_level=L.DOCUMENT,  # TODO new output level IMG? Or treat as DOC?
+                                                 node=OCR_FEATURE_NODES.nodes[O_A.IMAGE_TABLE_CELL2TEXT_TABLE],
+                                                 description='Recognize text from image files',
+                                                 provider=ComponentBackends.ocr,
+                                                 license=Licenses.ocr,
+                                                 computation_context=ComputeContexts.spark,
+                                                 output_context=ComputeContexts.spark,
+                                                 jsl_anno_class_id=O_A.IMAGE_TABLE_CELL2TEXT_TABLE,
+                                                 jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[O_A.IMAGE_TABLE_CELL2TEXT_TABLE],
+                                                 applicable_file_types=['JPEG', 'PNG', 'BMP', 'WBMP', 'GIF', 'JPG', '.TIFF'],
+                                                 is_light_pipe_incompatible=True
+                                                 ),
+
+        O_A.IMAGE_TABLE_DETECTOR: partial(NluComponent,
+                                          name=O_A.IMAGE_TABLE_DETECTOR,
+                                          type=T.TABLE_RECOGNIZER,
+                                          get_default_model=IMAGE_TABLE_DETECTOR.get_default_model,
+                                          pdf_extractor_methods={'default': default_binary_to_image_config},
+                                          pdf_col_name_substitutor=substitute_recognized_text_cols,
+                                          output_level=L.DOCUMENT,
+                                          node=OCR_FEATURE_NODES.nodes[O_A.IMAGE_TABLE_DETECTOR],
+                                          description='Detect Tables from Images',
+                                          provider=ComponentBackends.ocr,
+                                          license=Licenses.ocr,
+                                          computation_context=ComputeContexts.spark,
+                                          output_context=ComputeContexts.spark,
+                                          jsl_anno_class_id=O_A.IMAGE_TABLE_DETECTOR,
+                                          jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[O_A.IMAGE_TABLE_DETECTOR],
+                                          applicable_file_types=['PDF','JPEG', 'PNG'],
+                                          is_light_pipe_incompatible=True
+                                          ),
+
+        O_A.IMAGE_SPLIT_REGIONS: partial(NluComponent,
+                                         name=O_A.IMAGE_SPLIT_REGIONS,
+                                         type=T.OCR_UTIL,
+                                         get_default_model=ImageSplitRegions.get_default_model,
+                                         pdf_extractor_methods={'default': default_binary_to_image_config},
+                                         pdf_col_name_substitutor=substitute_recognized_text_cols,
+                                         output_level=L.DOCUMENT,
+                                         node=OCR_FEATURE_NODES.nodes[O_A.IMAGE_SPLIT_REGIONS],
+                                         description='Convert Image to split regions',
+                                         provider=ComponentBackends.ocr,
+                                         license=Licenses.ocr,
+                                         computation_context=ComputeContexts.spark,
+                                         output_context=ComputeContexts.spark,
+                                         jsl_anno_class_id=O_A.IMAGE_SPLIT_REGIONS,
+                                         jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[
+                                             O_A.IMAGE_SPLIT_REGIONS],
+                                         applicable_file_types=['DOCX', 'DOC', 'JPEG', 'PNG'],
+                                         is_light_pipe_incompatible=True
+                                         ),
+
+        O_A.IMAGE_DRAW_REGIONS: partial(NluComponent,
+                                         name=O_A.IMAGE_DRAW_REGIONS,
+                                         type=T.OCR_UTIL,
+                                         get_default_model=ImageDrawRegions.get_default_model,
+                                         pdf_extractor_methods={'default': default_binary_to_image_config},
+                                         pdf_col_name_substitutor=substitute_recognized_text_cols,
+                                         output_level=L.DOCUMENT,
+                                         node=OCR_FEATURE_NODES.nodes[O_A.IMAGE_DRAW_REGIONS],
+                                         description='Convert Image to split regions',
+                                         provider=ComponentBackends.ocr,
+                                         license=Licenses.ocr,
+                                         computation_context=ComputeContexts.spark,
+                                         output_context=ComputeContexts.spark,
+                                         jsl_anno_class_id=O_A.IMAGE_DRAW_REGIONS,
+                                         jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[
+                                             O_A.IMAGE_DRAW_REGIONS],
+                                         applicable_file_types=['DOCX', 'DOC', 'JPEG', 'PNG', 'PDF']
+                                         ),
+
+        O_A.VISUAL_DOCUMENT_CLASSIFIER: partial(NluComponent,
+                                                name=O_A.VISUAL_DOCUMENT_CLASSIFIER,
+                                                type=T.PDF_BUILDER,
+                                                get_default_model=VisualDocClassifier.get_default_model,
+                                                pdf_extractor_methods={'default': default_visual_classifier_config},
+                                                # TODO EXtractor
+                                                pdf_col_name_substitutor=substitute_document_classifier_text_cols,
+                                                # TODO substitor
+                                                output_level=L.DOCUMENT,
+                                                node=OCR_FEATURE_NODES.nodes[O_A.VISUAL_DOCUMENT_CLASSIFIER],
+                                                description='Convert text to PDF file',
+                                                provider=ComponentBackends.ocr,
+                                                license=Licenses.ocr,
+                                                computation_context=ComputeContexts.spark,
+                                                output_context=ComputeContexts.spark,
+                                                jsl_anno_class_id=O_A.VISUAL_DOCUMENT_CLASSIFIER,
+                                                jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[
+                                                    O_A.VISUAL_DOCUMENT_CLASSIFIER],
+                                                applicable_file_types=['JPG', 'JPEG']
+                                                ),
+
         O_A.IMAGE2HOCR: partial(NluComponent,
                                 name=O_A.IMAGE2HOCR,
                                 type=T.OCR_UTIL,
@@ -4004,7 +4598,90 @@ class ComponentUniverse:
                                 jsl_anno_class_id=O_A.IMAGE2HOCR,
                                 jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[
                                     O_A.IMAGE2HOCR],
-                                applicable_file_types=['DOCX', 'DOC']
+                                applicable_file_types=['DOCX', 'DOC'],
                                 ),
+
+        O_A.HOCR_TOKENIZER: partial(NluComponent,
+                                    name=O_A.HOCR_TOKENIZER,
+                                    type=T.OCR_UTIL,
+                                    get_default_model=HocrTokenizer.get_default_model,
+                                    # TODO EXtractor0
+                                    pdf_extractor_methods={'default': default_binary_to_image_config},
+                                    # TODO substitor
+                                    pdf_col_name_substitutor=substitute_recognized_text_cols,
+                                    output_level=L.DOCUMENT,
+                                    node=OCR_FEATURE_NODES.nodes[O_A.HOCR_TOKENIZER],
+                                    description='Convert text to PDF file',
+                                    provider=ComponentBackends.ocr,
+                                    license=Licenses.ocr,
+                                    computation_context=ComputeContexts.spark,
+                                    output_context=ComputeContexts.spark,
+                                    jsl_anno_class_id=O_A.HOCR_TOKENIZER,
+                                    jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[
+                                        O_A.HOCR_TOKENIZER],
+                                    applicable_file_types=['DOCX', 'DOC'],
+                                    ),
+
+        O_A.VISUAL_DOCUMENT_NER: partial(NluComponent,
+                                         name=O_A.VISUAL_DOCUMENT_NER,
+                                         type=T.PDF_BUILDER,
+                                         get_default_model=VisualDocumentNer.get_default_model,
+                                         pdf_extractor_methods={'default': default_visual_ner_config},
+                                         # TODO EXtractor
+                                         pdf_col_name_substitutor=substitute_document_ner_cols,
+                                         # TODO substitor
+                                         output_level=L.CHUNK,
+                                         node=OCR_FEATURE_NODES.nodes[O_A.VISUAL_DOCUMENT_NER],
+                                         description='Convert text to PDF file',
+                                         provider=ComponentBackends.ocr,
+                                         license=Licenses.ocr,
+                                         computation_context=ComputeContexts.spark,
+                                         output_context=ComputeContexts.spark,
+                                         jsl_anno_class_id=O_A.VISUAL_DOCUMENT_NER,
+                                         jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[
+                                             O_A.VISUAL_DOCUMENT_NER],
+                                         applicable_file_types=['JPG', 'JPEG']
+                                         ),
+
+        O_A.FORM_RELATION_EXTRACTOR: partial(NluComponent,
+                                             name=O_A.FORM_RELATION_EXTRACTOR,
+                                             type=T.TEXT_RECOGNIZER,
+                                             get_default_model=FormRelationExtractor.get_default_model,
+                                             # TODO EXtractor0
+                                             pdf_extractor_methods={'default': default_form_relation_extractor_config},
+                                             # TODO substitor
+                                             pdf_col_name_substitutor=substitute_form_extractor_text_cols,
+                                             output_level=L.RELATION,
+                                             node=OCR_FEATURE_NODES.nodes[O_A.FORM_RELATION_EXTRACTOR],
+                                             description='Convert text to PDF file',
+                                             provider=ComponentBackends.ocr,
+                                             license=Licenses.ocr,
+                                             computation_context=ComputeContexts.spark,
+                                             output_context=ComputeContexts.spark,
+                                             jsl_anno_class_id=O_A.FORM_RELATION_EXTRACTOR,
+                                             jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[
+                                                 O_A.FORM_RELATION_EXTRACTOR],
+                                             applicable_file_types=['DOCX', 'DOC'],
+                                             ),
+        O_A.POSITION_FINDER: partial(NluComponent,
+                                             name=O_A.POSITION_FINDER,
+                                             type=T.OCR_UTIL,
+                                             get_default_model=PositionFinder.get_default_model,
+                                             # TODO EXtractor0
+                                             pdf_extractor_methods={'default': default_position_finder_config},
+                                             # TODO substitor
+                                             pdf_col_name_substitutor=substitute_recognized_text_cols,
+                                             output_level=L.RELATION,
+                                             node=OCR_FEATURE_NODES.nodes[O_A.POSITION_FINDER],
+                                             description='Convert text to PDF file',
+                                             provider=ComponentBackends.ocr,
+                                             license=Licenses.ocr,
+                                             computation_context=ComputeContexts.spark,
+                                             output_context=ComputeContexts.spark,
+                                             jsl_anno_class_id=O_A.POSITION_FINDER,
+                                             jsl_anno_py_class=ACR.JSL_anno_OCR_ref_2_py_class[
+                                                 O_A.POSITION_FINDER],
+                                             applicable_file_types=['DOCX', 'DOC'],
+                                             ),
 
     }

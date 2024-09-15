@@ -4,6 +4,7 @@ from sparknlp.annotator import *
 
 import nlu
 from nlu import Licenses
+from nlu.pipe.extractors.extractor_base_data_classes import FinisherExtractorConfig
 from nlu.pipe.nlu_component import NluComponent
 from nlu.pipe.pipeline import NLUPipeline
 from nlu.pipe.utils.resolution.storage_ref_utils import StorageRefUtils
@@ -15,9 +16,9 @@ from nlu.universe.logic_universes import NLP_LEVELS, AnnoTypes
 
 logger = logging.getLogger('nlu')
 from nlu.pipe.utils.component_utils import ComponentUtils
-from typing import List, Union
+from typing import List, Union, Dict
 from nlu.universe.annotator_class_universe import AnnoClassRef
-from nlu.utils.environment.env_utils import is_running_in_databricks
+from nlu.utils.environment.env_utils import is_running_in_databricks_runtime
 import os
 import glob
 import json
@@ -103,8 +104,29 @@ class PipeUtils:
         data
         return data
 
+
     @staticmethod
-    def set_column_values_on_components_from_pretrained_pipe(component_list: List[NluComponent], nlp_ref, lang, path):
+    def set_column_values_on_components_from_pretrained_pipe(component_list: List[NluComponent]):
+        """Set output/input cols on Nlu Components loaded from a pipeline
+        """
+
+        for c in component_list:
+            if hasattr(c.model,'inputCols') :
+                inp = c.model.getInputCols()
+            else:
+                inp = c.model.getInputCol()
+
+            if hasattr(c.model,'outputCols') :
+                out = c.model.getOutputCols()
+            else:
+                out = c.model.getOutputCol()
+            c.spark_input_column_names = inp if isinstance(inp, List) else [inp]
+            c.spark_output_column_names = out if isinstance(out, List) else [out]
+
+        return component_list
+
+    @staticmethod
+    def set_column_values_on_components_from_pretrained_pipe_from_disk_data(component_list: List[NluComponent], nlp_ref, lang, path):
         """Since output/input cols cannot be fetched from Annotators via get input/output col reliably, we must check
         annotator data to find them Expects a list of NLU Component objects which all stem from the same pipeline
         defined by nlp_ref
@@ -118,12 +140,12 @@ class PipeUtils:
             pipe_path = glob.glob(f'{pipe_path}*')
             if len(pipe_path) == 0:
                 # try databricks env path
-                if is_running_in_databricks():
+                if is_running_in_databricks_runtime():
                     pipe_path = [f'dbfs:/root/cache_pretrained/{nlp_ref}_{lang}']
                 else:
                     raise FileNotFoundError(f"Could not find downloaded Pipeline at path={pipe_path}")
             pipe_path = pipe_path[0]
-            if not os.path.exists(pipe_path) and not is_running_in_databricks():
+            if not os.path.exists(pipe_path) and not is_running_in_databricks_runtime():
                 raise FileNotFoundError(f"Could not find downloaded Pipeline at path={pipe_path}")
 
         # Find HDD location of component_list and read out input/output cols
@@ -133,7 +155,7 @@ class PipeUtils:
 
         for c in component_list:
             model_name = c.model.uid.split('_')[0]
-            if is_running_in_databricks():
+            if is_running_in_databricks_runtime():
                 data = PipeUtils.get_json_data_for_pipe_model_at_stage_number_on_databricks(nlp_ref, lang, digit_str)
             else:
                 data = PipeUtils.get_json_data_for_pipe_model_at_stage_number(pipe_path, digit_str)
@@ -161,7 +183,7 @@ class PipeUtils:
             c.spark_output_column_names = [out]
 
             if model_name != 'Finisher':
-                # finisher dynamically generates cols from input cols 4
+                # finisher dynamically generates cols from input cols
                 c.model.setOutputCol(out) if hasattr(c.model, 'setOutputCol') else c.model.setOutputCols(out)
             digit_cur += 1
             digit_str = str(digit_cur)
@@ -646,8 +668,16 @@ class PipeUtils:
 
         for c in pipe.components:
             # Check for OCR componments
-            if c.jsl_anno_py_class in py_class_to_anno_id.keys():
+            if c.prefer_light_pipe:
+                pipe.prefer_light = True
+
+            if c.jsl_anno_py_class in py_class_to_anno_id.keys() or c.is_visual_annotator:
                 pipe.contains_ocr_components = True
+                if c.requires_image_format:
+                    pipe.requires_image_format = True
+                if c.requires_binary_format:
+                    pipe.requires_binary_format = True
+
             # Check for licensed components
             if c.license in [Licenses.ocr, Licenses.hc]:
                 pipe.has_licensed_components = True
@@ -655,14 +685,15 @@ class PipeUtils:
             if c.license == Licenses.open_source \
                     and c.name != NLP_NODE_IDS.WAV2VEC_FOR_CTC \
                     and c.name != NLP_NODE_IDS.HUBERT_FOR_CTC \
+                    and c.name != NLP_NODE_IDS.WHISPER_FOR_CTC \
                     and c.name != NLP_NODE_IDS.AUDIO_ASSEMBLER:
                 # TODO Table Assembler/VIT/ Other non txt open source
                 pipe.has_nlp_components = True
             if c.type == AnnoTypes.QUESTION_TABLE_ANSWERER:
                 pipe.has_table_qa_models = True
 
-            if c.type == AnnoTypes.CHUNK_MAPPER:
-                pipe.prefer_light = True
+            # if c.type == AnnoTypes.CHUNK_MAPPER:
+            #     pipe.prefer_light = True
 
             if c.type == AnnoTypes.QUESTION_SPAN_CLASSIFIER:
                 pipe.has_span_classifiers = True
@@ -675,6 +706,8 @@ class PipeUtils:
                 pipe.has_nlp_components = False
             if c.jsl_anno_py_class == 'ImageAssembler':
                 pipe.contains_ocr_components = True
+            if c.is_light_pipe_incompatible:
+                pipe.is_light_pipe_incompatible = True
 
         return pipe
 
